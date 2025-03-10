@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   const { username, password } = await request.json()
 
   if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     cookieStore.set('admin-token', 'authenticated', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const token = cookieStore.get('admin-token')
   
   return NextResponse.json({ 
@@ -36,7 +36,7 @@ export async function GET() {
 }
 
 export async function DELETE() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   cookieStore.delete('admin-token')
   
   return NextResponse.json({ success: true })

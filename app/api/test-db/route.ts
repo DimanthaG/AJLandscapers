@@ -15,9 +15,10 @@ export async function GET() {
       test_query: data 
     })
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
     return NextResponse.json({ 
       status: 'Connection failed', 
-      error: error.message 
+      error: errorMessage 
     }, { status: 500 })
   }
 }

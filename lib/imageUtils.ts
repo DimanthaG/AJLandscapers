@@ -14,7 +14,7 @@ export async function compressImage(file: File) {
   try {
     // Try to compress with initial settings
     let compressedFile = await imageCompression(file, options);
-    let size = compressedFile.size / (1024 * 1024); // Size in MB
+    const size = compressedFile.size / (1024 * 1024); // Size in MB
 
     // If still too large, try more aggressive compression
     if (size > 0.3) {

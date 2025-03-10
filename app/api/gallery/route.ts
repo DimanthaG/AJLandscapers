@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { supabase } from '@/lib/supabase'
-import { uploadToCloudinary, getOptimizedUrl } from '@/lib/cloudinary'
+import { uploadToCloudinary, deleteFromCloudinary } from '@/lib/cloudinary'
 
 // Size limits are now handled by Cloudinary's automatic optimization
 export async function GET() {
@@ -104,7 +104,7 @@ export async function DELETE(request: Request) {
 
   try {
     // Delete from Cloudinary
-    await cloudinary.uploader.destroy(cloudinaryId)
+    await deleteFromCloudinary(cloudinaryId)
 
     // Delete from Supabase
     const { error: dbError } = await supabase
