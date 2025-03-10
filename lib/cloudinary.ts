@@ -1,37 +1,42 @@
 const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}`
 
-// Create a dedicated unsigned upload preset in your Cloudinary dashboard
-// Go to Settings > Upload > Upload presets > Add upload preset
-// Set "Signing Mode" to "Unsigned"
-// Name it "ajlandscaper_uploads"
-const UPLOAD_PRESET = 'ml_default'
-
 export async function uploadToCloudinary(
   file: File | Blob,
   options: {
     folder?: string;
     resourceType?: 'image' | 'video';
-    transformation?: string;
   } = {}
 ): Promise<{ secure_url: string; public_id: string; bytes: number }> {
-  const { folder = 'gallery', resourceType = 'image', transformation = 'q_auto,f_auto' } = options
+  const { folder = 'gallery', resourceType = 'image' } = options
 
   try {
-    // Create form data for unsigned upload
+    // Basic upload parameters
+    const params = {
+      folder,
+      timestamp: Math.round(new Date().getTime() / 1000).toString()
+    }
+
+    // Generate signature first
+    const signature = await generateSignature(params)
+
+    // Create form data with all parameters
     const formData = new FormData()
     formData.append('file', file)
-    formData.append('upload_preset', UPLOAD_PRESET)
-    formData.append('folder', folder)
-    formData.append('transformation', transformation)
+    formData.append('api_key', process.env.CLOUDINARY_API_KEY!)
+    formData.append('signature', signature)
     
-    // Log upload attempt
+    // Add all params to form data
+    Object.entries(params).forEach(([key, value]) => {
+      formData.append(key, value)
+    })
+    
     console.log('Starting Cloudinary upload...', {
       type: resourceType,
-      preset: UPLOAD_PRESET,
-      folder: folder
+      folder: folder,
+      timestamp: params.timestamp
     })
 
-    // Upload to Cloudinary using unsigned upload
+    // Upload to Cloudinary using signed upload
     const response = await fetch(`${CLOUDINARY_URL}/${resourceType}/upload`, {
       method: 'POST',
       body: formData
@@ -49,6 +54,23 @@ export async function uploadToCloudinary(
     console.error('Cloudinary upload error:', error)
     throw new Error(`Failed to upload to Cloudinary: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
+}
+
+async function generateSignature(params: Record<string, string>): Promise<string> {
+  // Sort parameters alphabetically and create string to sign
+  const stringToSign = Object.entries(params)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, value]) => `${key}=${value}`)
+    .join('&') + process.env.CLOUDINARY_API_SECRET
+
+  // Use Web Crypto API for SHA-1 hashing
+  const encoder = new TextEncoder()
+  const data = encoder.encode(stringToSign)
+  const hashBuffer = await crypto.subtle.digest('SHA-1', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+  
+  return hashHex
 }
 
 export async function deleteFromCloudinary(publicId: string): Promise<void> {

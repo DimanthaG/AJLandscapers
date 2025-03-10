@@ -7,16 +7,13 @@ export default function AboutPage() {
     <main className="min-h-screen bg-gray-900 pt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="relative h-[500px] rounded-lg overflow-hidden">
-            <Image
-              src="/about-us.jpg"
-              alt="About AJLandscapers"
-              fill
-              className="object-cover"
-            />
-          </div>
           <div className="space-y-6">
-            <h1 className="text-4xl font-bold text-green-500">{siteConfig.about.title}</h1>
+            <h1 className="text-4xl font-bold text-green-500">
+              <EditableContent
+                content={siteConfig.about.title}
+                id="about-title"
+              />
+            </h1>
             <EditableContent
               content={siteConfig.about.description}
               id="about-description"
@@ -36,6 +33,15 @@ export default function AboutPage() {
                 </div>
               ))}
             </div>
+          </div>
+          <div className="relative h-[500px] rounded-lg overflow-hidden">
+            <Image
+              src="https://source.unsplash.com/1200x800/?landscaping,garden"
+              alt="About AJLandscapers"
+              fill
+              className="object-cover"
+              priority
+            />
           </div>
         </div>
       </div>

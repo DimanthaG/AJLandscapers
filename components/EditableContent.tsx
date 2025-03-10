@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAdmin } from '@/context/admin-context'
 import { Pencil } from 'lucide-react'
+import { getContentCache, setContentCache } from '@/lib/contentCache'
 
 interface EditableContentProps {
   content: string
@@ -13,29 +14,34 @@ interface EditableContentProps {
 export function EditableContent({ content: initialContent, id, className = "" }: EditableContentProps) {
   const { isAdmin } = useAdmin()
   const [isEditing, setIsEditing] = useState(false)
-  const [editedContent, setEditedContent] = useState(initialContent)
+  const [editedContent, setEditedContent] = useState(() => getContentCache(id) || initialContent)
   const [isHovered, setIsHovered] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   
   useEffect(() => {
-    // Fetch initial content from the API
-    const fetchContent = async () => {
-      try {
-        const response = await fetch(`/api/content?key=${id}`)
-        const data = await response.json()
-        if (data?.content) {
-          setEditedContent(data.content)
+    // Only fetch from API if we don't have it in cache
+    if (!getContentCache(id)) {
+      const fetchContent = async () => {
+        try {
+          const response = await fetch(`/api/content?key=${id}`)
+          const data = await response.json()
+          if (data?.content) {
+            setEditedContent(data.content)
+            setContentCache(id, data.content)
+          }
+        } catch (error) {
+          console.error('Error fetching content:', error)
         }
-      } catch (error) {
-        console.error('Error fetching content:', error)
       }
+      fetchContent()
     }
-
-    fetchContent()
   }, [id])
 
   const handleSave = async () => {
     setIsSaving(true)
+    // Optimistically update the cache
+    setContentCache(id, editedContent)
+    
     try {
       const response = await fetch('/api/content', {
         method: 'POST',
@@ -55,6 +61,9 @@ export function EditableContent({ content: initialContent, id, className = "" }:
       setIsEditing(false)
     } catch (error) {
       console.error('Error saving content:', error)
+      // On error, revert the cache to the previous value
+      setContentCache(id, initialContent)
+      setEditedContent(initialContent)
       // Optionally show an error message to the user
     } finally {
       setIsSaving(false)

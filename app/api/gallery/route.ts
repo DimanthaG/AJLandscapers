@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { supabase } from '@/lib/supabase'
-import { uploadToCloudinary, deleteFromCloudinary } from '@/lib/cloudinary'
+import { supabase, supabaseAdmin } from '@/lib/supabase'
+import { uploadToCloudinary } from '@/lib/cloudinary'
 
 // Size limits are now handled by Cloudinary's automatic optimization
 export async function GET() {
@@ -28,11 +28,8 @@ export async function POST(request: Request) {
   try {
     const { src, alt, type } = await request.json()
 
-    if (!src || !alt || !type) {
-      return NextResponse.json({ 
-        error: 'Required fields missing',
-        details: 'src, alt, and type are required' 
-      }, { status: 400 })
+    if (!src || !alt) {
+      return NextResponse.json({ error: 'Required fields missing' }, { status: 400 })
     }
 
     if (src.startsWith('data:')) {
@@ -48,60 +45,57 @@ export async function POST(request: Request) {
       
       const blob = new Blob([byteNumbers], { type: contentType })
 
-      console.log('Starting Cloudinary upload...', {
+      console.log('Starting upload process...', {
         type,
         contentType,
         blobSize: blob.size,
       })
 
-      // Upload to Cloudinary with automatic optimization
-      const uploadResult = await uploadToCloudinary(blob, {
-        resourceType: type === 'video' ? 'video' : 'image',
-        transformation: type === 'video' 
-          ? 'q_auto,f_auto,w_854' 
-          : 'q_auto,f_auto,w_1280,c_limit'
-      })
-
-      console.log('Cloudinary upload successful', {
-        publicId: uploadResult.public_id,
-        url: uploadResult.secure_url,
-      })
-
-      // Save reference in Supabase
-      const { data: savedMedia, error: dbError } = await supabase
-        .from('gallery')
-        .insert({
-          src: uploadResult.secure_url,
-          alt,
-          width: type === 'video' ? 854 : 1280,
-          height: type === 'video' ? 480 : 720,
-          type,
-          cloudinary_id: uploadResult.public_id,
-          size: uploadResult.bytes / (1024 * 1024)
+      try {
+        // Upload to Cloudinary
+        const uploadResult = await uploadToCloudinary(blob, {
+          resourceType: type,
         })
-        .select()
-        .single()
 
-      if (dbError) {
-        console.error('Supabase error:', dbError)
-        throw dbError
+        console.log('Upload successful:', {
+          url: uploadResult.secure_url,
+          size: uploadResult.bytes,
+          format: uploadResult.format
+        })
+
+        // Save reference in Supabase using admin client
+        const { data: savedMedia, error: dbError } = await supabaseAdmin
+          .from('gallery')
+          .insert({
+            src: uploadResult.secure_url,
+            alt,
+            width: type === 'video' ? 854 : 1280,
+            height: type === 'video' ? 480 : 720,
+            type,
+            size: uploadResult.bytes / (1024 * 1024) // Convert to MB
+          })
+          .select()
+          .single()
+
+        if (dbError) {
+          throw new Error(`Database error: ${dbError.message}`)
+        }
+
+        return NextResponse.json(savedMedia)
+      } catch (uploadError) {
+        console.error('Upload error details:', uploadError)
+        throw new Error(`Upload failed: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}`)
       }
-
-      return NextResponse.json(savedMedia)
     }
 
-    return NextResponse.json({ 
-      error: 'Invalid media data',
-      details: 'Media data must be a base64 string' 
-    }, { status: 400 })
+    return NextResponse.json({ error: 'Invalid media data' }, { status: 400 })
 
   } catch (error) {
     console.error('Error processing media:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
     return NextResponse.json({ 
       error: 'Failed to process media',
-      details: errorMessage,
-      timestamp: new Date().toISOString()
+      details: errorMessage 
     }, { status: 500 })
   }
 }
@@ -115,21 +109,18 @@ export async function DELETE(request: Request) {
   }
 
   const { searchParams } = new URL(request.url)
-  const cloudinaryId = searchParams.get('cloudinary_id')
+  const mediaUrl = searchParams.get('src')
 
-  if (!cloudinaryId) {
-    return NextResponse.json({ error: 'Cloudinary ID is required' }, { status: 400 })
+  if (!mediaUrl) {
+    return NextResponse.json({ error: 'Media URL is required' }, { status: 400 })
   }
 
   try {
-    // Delete from Cloudinary
-    await deleteFromCloudinary(cloudinaryId)
-
-    // Delete from Supabase
-    const { error: dbError } = await supabase
+    // Delete from Supabase using admin client
+    const { error: dbError } = await supabaseAdmin
       .from('gallery')
       .delete()
-      .eq('cloudinary_id', cloudinaryId)
+      .eq('src', mediaUrl)
 
     if (dbError) {
       throw dbError

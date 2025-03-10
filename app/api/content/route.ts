@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseAdmin } from '@/lib/supabase'
+import { siteConfig } from '@/config/site-config'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -10,17 +11,67 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Key is required' }, { status: 400 })
   }
 
-  const { data, error } = await supabase
-    .from('content')
-    .select('content')
-    .eq('key', key)
-    .single()
+  try {
+    // Try to fetch from database
+    const { data, error } = await supabase
+      .from('content')
+      .select('content')
+      .eq('key', key)
+      .single()
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    // If content exists in database, return it
+    if (data?.content) {
+      return NextResponse.json(data)
+    }
+
+    // If not in database, get default content from site config
+    const defaultContent = getDefaultContent(key)
+    if (defaultContent) {
+      // Store default content in database
+      await supabaseAdmin
+        .from('content')
+        .upsert({ key, content: defaultContent })
+
+      return NextResponse.json({ content: defaultContent })
+    }
+
+    // If no default content found, return 404
+    return NextResponse.json({ error: 'Content not found' }, { status: 404 })
+  } catch (error) {
+    console.error('Error fetching content:', error)
+    return NextResponse.json({ error: 'Failed to fetch content' }, { status: 500 })
+  }
+}
+
+function getDefaultContent(key: string): string | undefined {
+  // Parse the key to understand what content is being requested
+  if (key.startsWith('hero-')) {
+    const subKey = key.replace('hero-', '') as keyof typeof siteConfig.hero
+    return siteConfig.hero[subKey]
+  }
+  
+  if (key.startsWith('service-title-')) {
+    const index = parseInt(key.replace('service-title-', ''))
+    return siteConfig.defaultServices[index]?.title
+  }
+  
+  if (key.startsWith('service-desc-')) {
+    const index = parseInt(key.replace('service-desc-', ''))
+    return siteConfig.defaultServices[index]?.description
+  }
+  
+  if (key.startsWith('about-')) {
+    const subKey = key.replace('about-', '') as keyof typeof siteConfig.about
+    const content = siteConfig.about[subKey]
+    return typeof content === 'string' ? content : undefined
+  }
+  
+  if (key.startsWith('feature-')) {
+    const index = parseInt(key.replace('feature-', ''))
+    return siteConfig.about.features[index]
   }
 
-  return NextResponse.json(data)
+  return undefined
 }
 
 export async function POST(request: Request) {
@@ -37,7 +88,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Key and content are required' }, { status: 400 })
   }
 
-  const { error: upsertError } = await supabase
+  // Use admin client for write operations
+  const { error: upsertError } = await supabaseAdmin
     .from('content')
     .upsert({ key, content })
 

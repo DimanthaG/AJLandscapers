@@ -1,21 +1,22 @@
 import Image from "next/image";
 import { siteConfig } from "@/config/site-config";
 import { EditableContent } from "@/components/EditableContent";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-950">
+    <main className="min-h-screen bg-gray-900">
       {/* Hero Section */}
-      <section className="relative h-[90vh] flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/60 z-10" />
+      <section className="relative h-screen">
         <div className="absolute inset-0">
           <Image
-            src="/hero-landscape.jpg"
-            alt="Beautiful landscape"
+            src="https://source.unsplash.com/1920x1080/?landscape,garden"
+            alt="Beautiful landscaping"
             fill
             className="object-cover"
             priority
           />
+          <div className="absolute inset-0 bg-black/60" />
         </div>
         <div className="relative z-20 text-center text-white max-w-4xl mx-auto px-4">
           <EditableContent
@@ -28,34 +29,26 @@ export default function Home() {
             id="hero-subtitle"
             className="text-xl md:text-2xl mb-8 text-gray-300"
           />
-          <a
-            href="#contact"
+          <Link
+            href="/contact"
             className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-full text-lg transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/20"
           >
             {siteConfig.hero.cta}
-          </a>
+          </Link>
         </div>
       </section>
 
-      {/* Services Section */}
-      <section className="py-24 px-4 bg-gray-900">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-16 text-green-500">Our Services</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {siteConfig.services.map((service, index) => (
+      {/* Services Preview */}
+      <section className="py-20 bg-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-green-500 mb-12">Our Services</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {siteConfig.defaultServices.slice(0, 3).map((service, index) => (
               <div
                 key={index}
-                className="group bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/5"
+                className="bg-gray-900 rounded-lg p-6 hover:bg-gray-800 transition-colors"
               >
-                <div className="h-48 relative mb-6 rounded-lg overflow-hidden">
-                  <Image
-                    src={service.image}
-                    alt={service.title}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-                <h3 className="text-xl font-semibold mb-3 text-green-400">
+                <h3 className="text-xl font-bold text-green-400 mb-4">
                   <EditableContent
                     content={service.title}
                     id={`service-title-${index}`}
@@ -69,6 +62,14 @@ export default function Home() {
                 </p>
               </div>
             ))}
+          </div>
+          <div className="text-center mt-12">
+            <Link
+              href="/services"
+              className="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
+            >
+              View All Services
+            </Link>
           </div>
         </div>
       </section>
@@ -200,12 +201,26 @@ export default function Home() {
                 <p>Email: {siteConfig.business.email}</p>
               </div>
               <div className="mt-6 flex justify-end space-x-6">
-                <a href={siteConfig.social.facebook} className="text-gray-400 hover:text-green-400 transition-colors">
-                  Facebook
-                </a>
-                <a href={siteConfig.social.instagram} className="text-gray-400 hover:text-green-400 transition-colors">
-                  Instagram
-                </a>
+                {siteConfig.social.facebook && (
+                  <a href={siteConfig.social.facebook} className="text-gray-400 hover:text-green-400 transition-colors">
+                    Facebook
+                  </a>
+                )}
+                {siteConfig.social.instagram && (
+                  <a href={siteConfig.social.instagram} className="text-gray-400 hover:text-green-400 transition-colors">
+                    Instagram
+                  </a>
+                )}
+                {siteConfig.social.twitter && (
+                  <a href={siteConfig.social.twitter} className="text-gray-400 hover:text-green-400 transition-colors">
+                    Twitter
+                  </a>
+                )}
+                {siteConfig.social.linkedin && (
+                  <a href={siteConfig.social.linkedin} className="text-gray-400 hover:text-green-400 transition-colors">
+                    LinkedIn
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -214,6 +229,6 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    </div>
+    </main>
   );
 }
