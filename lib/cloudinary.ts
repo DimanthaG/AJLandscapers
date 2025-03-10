@@ -6,7 +6,12 @@ export async function uploadToCloudinary(
     folder?: string;
     resourceType?: 'image' | 'video';
   } = {}
-): Promise<{ secure_url: string; public_id: string; bytes: number }> {
+): Promise<{ 
+  secure_url: string; 
+  public_id: string; 
+  bytes: number;
+  format: string;
+}> {
   const { folder = 'gallery', resourceType = 'image' } = options
 
   try {

@@ -16,6 +16,7 @@ interface MediaItem {
   type: 'image' | 'video'
   duration?: number
   size?: number
+  format?: string
 }
 
 const defaultImages: MediaItem[] = [
@@ -179,6 +180,12 @@ export function GalleryGrid() {
     }
 
     const newMedia = await response.json()
+    // Log with format if available
+    console.log('Media upload complete:', {
+      url: newMedia.src,
+      size: newMedia.size,
+      format: newMedia.format || 'unknown'
+    })
     setMedia(prev => [...prev, newMedia])
   }
 

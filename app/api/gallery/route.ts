@@ -60,7 +60,8 @@ export async function POST(request: Request) {
         console.log('Upload successful:', {
           url: uploadResult.secure_url,
           size: uploadResult.bytes,
-          format: uploadResult.format
+          format: uploadResult.format,
+          id: uploadResult.public_id
         })
 
         // Save reference in Supabase using admin client
@@ -81,7 +82,11 @@ export async function POST(request: Request) {
           throw new Error(`Database error: ${dbError.message}`)
         }
 
-        return NextResponse.json(savedMedia)
+        return NextResponse.json({
+          ...savedMedia,
+          format: uploadResult.format,
+          public_id: uploadResult.public_id
+        })
       } catch (uploadError) {
         console.error('Upload error details:', uploadError)
         throw new Error(`Upload failed: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}`)
