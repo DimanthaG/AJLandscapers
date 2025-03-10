@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import Image from 'next/image'
 import { useAdmin } from '@/context/admin-context'
-import { Pencil, Trash2, Check, X, ImageIcon } from 'lucide-react'
+import { Pencil, Trash2, Check, X } from 'lucide-react'
+import { EditableImage } from './EditableImage'
 
 interface Service {
   id: string
@@ -27,18 +27,11 @@ export function EditableServiceCard({ service, onDelete, onUpdate }: EditableSer
     setIsEditing(false)
   }
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setEditedService(prev => ({
-          ...prev,
-          image: e.target?.result as string
-        }))
-      }
-      reader.readAsDataURL(file)
-    }
+  const handleImageUpdate = (newSrc: string) => {
+    setEditedService(prev => ({
+      ...prev,
+      image: newSrc
+    }))
   }
 
   if (isEditing && isAdmin) {
@@ -65,24 +58,14 @@ export function EditableServiceCard({ service, onDelete, onUpdate }: EditableSer
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Image URL</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={editedService.image}
-                onChange={(e) => setEditedService(prev => ({ ...prev, image: e.target.value }))}
-                className="flex-1 px-3 py-2 bg-gray-700 rounded-lg text-white"
-              />
-              <label className="px-3 py-2 bg-green-600 rounded-lg cursor-pointer hover:bg-green-700 transition-colors">
-                <ImageIcon className="h-5 w-5 text-white" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-              </label>
-            </div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Image</label>
+            <EditableImage
+              id={`service-${service.id}`}
+              src={editedService.image}
+              alt={editedService.title}
+              className="w-full h-48 object-cover rounded-lg"
+              onUpdate={handleImageUpdate}
+            />
           </div>
         </div>
 
@@ -136,19 +119,17 @@ export function EditableServiceCard({ service, onDelete, onUpdate }: EditableSer
       </div>
 
       <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity">
-        <Image
+        <EditableImage
+          id={`service-${service.id}`}
           src={service.image}
           alt={service.title}
           fill
           className="object-cover"
-          onError={(e) => {
-            e.currentTarget.src = "https://source.unsplash.com/800x600/?landscape"
-          }}
         />
       </div>
 
       {isAdmin && isHovered && (
-        <div className="absolute top-2 right-2 flex gap-2">
+        <div className="absolute top-2 right-2 flex gap-2 z-20">
           <button
             onClick={() => setIsEditing(true)}
             className="p-2 bg-green-500 rounded-full hover:bg-green-600 transition-colors"

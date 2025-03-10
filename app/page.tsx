@@ -1,40 +1,79 @@
-import Image from "next/image";
-import { siteConfig } from "@/config/site-config";
-import { EditableContent } from "@/components/EditableContent";
-import Link from "next/link";
+"use client"
+
+import { EditableContent } from "@/components/EditableContent"
+import { EditableImage } from "@/components/EditableImage"
+import { siteConfig } from "@/config/site-config"
+import Link from "next/link"
+import { useState, useEffect } from "react"
 
 export default function Home() {
+  const [heroImage, setHeroImage] = useState("https://source.unsplash.com/1920x1080/?landscape,garden")
+
+  useEffect(() => {
+    // Try to fetch saved hero image from database
+    const fetchHeroImage = async () => {
+      try {
+        const response = await fetch('/api/content?key=image-hero')
+        const data = await response.json()
+        if (data?.content) {
+          setHeroImage(data.content)
+        }
+      } catch (error) {
+        console.error('Error fetching hero image:', error)
+      }
+    }
+    fetchHeroImage()
+  }, [])
+
   return (
     <main className="min-h-screen bg-gray-900">
       {/* Hero Section */}
       <section className="relative h-screen">
         <div className="absolute inset-0">
-          <Image
-            src="https://source.unsplash.com/1920x1080/?landscape,garden"
+          <EditableImage
+            id="hero"
+            src={heroImage}
             alt="Beautiful landscaping"
             fill
             className="object-cover"
-            priority
           />
           <div className="absolute inset-0 bg-black/60" />
         </div>
-        <div className="relative z-20 text-center text-white max-w-4xl mx-auto px-4">
-          <EditableContent
-            content={siteConfig.hero.title}
-            id="hero-title"
-            className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-green-600"
-          />
-          <EditableContent
-            content={siteConfig.hero.subtitle}
-            id="hero-subtitle"
-            className="text-xl md:text-2xl mb-8 text-gray-300"
-          />
+        
+        <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 max-w-4xl">
+            <EditableContent
+              content={siteConfig.hero.title}
+              id="hero-title"
+            />
+          </h1>
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl">
+            <EditableContent
+              content={siteConfig.hero.subtitle}
+              id="hero-subtitle"
+            />
+          </p>
           <Link
             href="/contact"
-            className="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-full text-lg transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/20"
+            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
           >
             {siteConfig.hero.cta}
           </Link>
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+          <svg
+            className="w-6 h-6 text-white"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+          </svg>
         </div>
       </section>
 
@@ -103,6 +142,43 @@ export default function Home() {
                 />
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* About Preview */}
+      <section className="py-20 bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <h2 className="text-3xl font-bold text-green-500">
+                <EditableContent
+                  content={siteConfig.about.title}
+                  id="about-title"
+                />
+              </h2>
+              <div className="text-gray-300 text-lg">
+                <EditableContent
+                  content={siteConfig.about.description}
+                  id="about-description"
+                />
+              </div>
+              <Link
+                href="/about"
+                className="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
+              >
+                Learn More
+              </Link>
+            </div>
+            <div className="relative h-[400px] rounded-lg overflow-hidden">
+              <EditableImage
+                id="about-preview"
+                src="https://source.unsplash.com/800x600/?landscape,garden"
+                alt="About us preview"
+                fill
+                className="object-cover"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -230,5 +306,5 @@ export default function Home() {
         </div>
       </footer>
     </main>
-  );
+  )
 }
