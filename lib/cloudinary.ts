@@ -11,7 +11,7 @@ export async function uploadToCloudinary(
   const { folder = 'gallery', resourceType = 'image', transformation = 'q_auto,f_auto' } = options
 
   try {
-    // Create upload signature
+    // Create upload signature for signed uploads
     const timestamp = Math.round(new Date().getTime() / 1000)
     const signature = await generateSignature(timestamp, {
       folder,
@@ -25,9 +25,10 @@ export async function uploadToCloudinary(
     formData.append('timestamp', timestamp.toString())
     formData.append('signature', signature)
     formData.append('folder', folder)
-    formData.append('upload_preset', 'ajlandscaper_upload') // Add upload preset
-
-    // Log upload attempt (remove in production)
+    
+    // Don't require an upload preset - removed the upload_preset parameter
+    
+    // Log upload attempt
     console.log('Attempting Cloudinary upload:', {
       url: `${CLOUDINARY_URL}/${resourceType}/upload`,
       folder,
@@ -43,6 +44,7 @@ export async function uploadToCloudinary(
 
     if (!response.ok) {
       const errorData = await response.json()
+      console.error('Cloudinary upload error response:', errorData)
       throw new Error(`Cloudinary upload failed: ${errorData.error?.message || response.statusText}`)
     }
 
