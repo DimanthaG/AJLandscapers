@@ -28,8 +28,11 @@ export async function POST(request: Request) {
   try {
     const { src, alt, type } = await request.json()
 
-    if (!src || !alt) {
-      return NextResponse.json({ error: 'Required fields missing' }, { status: 400 })
+    if (!src || !alt || !type) {
+      return NextResponse.json({ 
+        error: 'Required fields missing',
+        details: 'src, alt, and type are required' 
+      }, { status: 400 })
     }
 
     if (src.startsWith('data:')) {
@@ -45,12 +48,23 @@ export async function POST(request: Request) {
       
       const blob = new Blob([byteNumbers], { type: contentType })
 
+      console.log('Starting Cloudinary upload...', {
+        type,
+        contentType,
+        blobSize: blob.size,
+      })
+
       // Upload to Cloudinary with automatic optimization
       const uploadResult = await uploadToCloudinary(blob, {
-        resourceType: type,
+        resourceType: type === 'video' ? 'video' : 'image',
         transformation: type === 'video' 
           ? 'q_auto,f_auto,w_854' 
           : 'q_auto,f_auto,w_1280,c_limit'
+      })
+
+      console.log('Cloudinary upload successful', {
+        publicId: uploadResult.public_id,
+        url: uploadResult.secure_url,
       })
 
       // Save reference in Supabase
@@ -60,29 +74,34 @@ export async function POST(request: Request) {
           src: uploadResult.secure_url,
           alt,
           width: type === 'video' ? 854 : 1280,
-          height: type === 'video' ? 480 : 720, // Approximate height based on aspect ratio
+          height: type === 'video' ? 480 : 720,
           type,
           cloudinary_id: uploadResult.public_id,
-          size: uploadResult.bytes / (1024 * 1024) // Convert to MB
+          size: uploadResult.bytes / (1024 * 1024)
         })
         .select()
         .single()
 
       if (dbError) {
+        console.error('Supabase error:', dbError)
         throw dbError
       }
 
       return NextResponse.json(savedMedia)
     }
 
-    return NextResponse.json({ error: 'Invalid media data' }, { status: 400 })
+    return NextResponse.json({ 
+      error: 'Invalid media data',
+      details: 'Media data must be a base64 string' 
+    }, { status: 400 })
 
   } catch (error) {
     console.error('Error processing media:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
     return NextResponse.json({ 
       error: 'Failed to process media',
-      details: errorMessage 
+      details: errorMessage,
+      timestamp: new Date().toISOString()
     }, { status: 500 })
   }
 }

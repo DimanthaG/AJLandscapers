@@ -10,33 +10,48 @@ export async function uploadToCloudinary(
 ): Promise<{ secure_url: string; public_id: string; bytes: number }> {
   const { folder = 'gallery', resourceType = 'image', transformation = 'q_auto,f_auto' } = options
 
-  // Create upload signature
-  const timestamp = Math.round(new Date().getTime() / 1000)
-  const signature = await generateSignature(timestamp, {
-    folder,
-    transformation
-  })
+  try {
+    // Create upload signature
+    const timestamp = Math.round(new Date().getTime() / 1000)
+    const signature = await generateSignature(timestamp, {
+      folder,
+      transformation
+    })
 
-  // Create form data
-  const formData = new FormData()
-  formData.append('file', file)
-  formData.append('api_key', process.env.CLOUDINARY_API_KEY!)
-  formData.append('timestamp', timestamp.toString())
-  formData.append('signature', signature)
-  formData.append('folder', folder)
-  formData.append('transformation', transformation)
+    // Create form data
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('api_key', process.env.CLOUDINARY_API_KEY!)
+    formData.append('timestamp', timestamp.toString())
+    formData.append('signature', signature)
+    formData.append('folder', folder)
+    formData.append('upload_preset', 'ajlandscaper_upload') // Add upload preset
 
-  // Upload to Cloudinary
-  const response = await fetch(`${CLOUDINARY_URL}/${resourceType}/upload`, {
-    method: 'POST',
-    body: formData
-  })
+    // Log upload attempt (remove in production)
+    console.log('Attempting Cloudinary upload:', {
+      url: `${CLOUDINARY_URL}/${resourceType}/upload`,
+      folder,
+      resourceType,
+      timestamp
+    })
 
-  if (!response.ok) {
-    throw new Error('Failed to upload to Cloudinary')
+    // Upload to Cloudinary
+    const response = await fetch(`${CLOUDINARY_URL}/${resourceType}/upload`, {
+      method: 'POST',
+      body: formData
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(`Cloudinary upload failed: ${errorData.error?.message || response.statusText}`)
+    }
+
+    const result = await response.json()
+    return result
+  } catch (error) {
+    console.error('Cloudinary upload error:', error)
+    throw new Error(`Failed to upload to Cloudinary: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
-
-  return response.json()
 }
 
 export async function deleteFromCloudinary(publicId: string): Promise<void> {
