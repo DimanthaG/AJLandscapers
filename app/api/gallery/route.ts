@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { supabase } from '@/lib/supabase'
-import cloudinary from '@/lib/cloudinary'
+import { uploadToCloudinary, getOptimizedUrl } from '@/lib/cloudinary'
 
 // Size limits are now handled by Cloudinary's automatic optimization
 export async function GET() {
@@ -26,50 +26,44 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { src, alt, width, height, type } = await request.json()
+    const { src, alt, type } = await request.json()
 
     if (!src || !alt) {
       return NextResponse.json({ error: 'Required fields missing' }, { status: 400 })
     }
 
     if (src.startsWith('data:')) {
-      // Upload to Cloudinary with automatic optimization
-      const uploadResponse = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            folder: 'gallery',
-            resource_type: type === 'video' ? 'video' : 'image',
-            quality: 'auto', // Automatic quality optimization
-            fetch_format: 'auto', // Automatic format optimization
-            transformation: [
-              type === 'video' 
-                ? { width: 854, crop: 'scale', quality: 'auto' }
-                : { width: 1280, crop: 'limit', quality: 'auto' }
-            ]
-          },
-          (error, result) => {
-            if (error) reject(error)
-            else resolve(result)
-          }
-        )
+      // Convert base64 to Blob
+      const base64Data = src.split(',')[1]
+      const contentType = src.split(';')[0].split(':')[1]
+      const byteCharacters = atob(base64Data)
+      const byteNumbers = new Uint8Array(byteCharacters.length)
+      
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i)
+      }
+      
+      const blob = new Blob([byteNumbers], { type: contentType })
 
-        // Convert base64 to buffer and upload
-        const base64Data = src.split(',')[1]
-        const buffer = Buffer.from(base64Data, 'base64')
-        uploadStream.end(buffer)
+      // Upload to Cloudinary with automatic optimization
+      const uploadResult = await uploadToCloudinary(blob, {
+        resourceType: type,
+        transformation: type === 'video' 
+          ? 'q_auto,f_auto,w_854' 
+          : 'q_auto,f_auto,w_1280,c_limit'
       })
 
       // Save reference in Supabase
       const { data: savedMedia, error: dbError } = await supabase
         .from('gallery')
         .insert({
-          src: uploadResponse.secure_url,
+          src: uploadResult.secure_url,
           alt,
-          width: uploadResponse.width,
-          height: uploadResponse.height,
+          width: type === 'video' ? 854 : 1280,
+          height: type === 'video' ? 480 : 720, // Approximate height based on aspect ratio
           type,
-          cloudinary_id: uploadResponse.public_id,
-          size: uploadResponse.bytes / (1024 * 1024) // Convert to MB
+          cloudinary_id: uploadResult.public_id,
+          size: uploadResult.bytes / (1024 * 1024) // Convert to MB
         })
         .select()
         .single()
@@ -81,7 +75,7 @@ export async function POST(request: Request) {
       return NextResponse.json(savedMedia)
     }
 
-    return NextResponse.json({ error: 'Invalid image data' }, { status: 400 })
+    return NextResponse.json({ error: 'Invalid media data' }, { status: 400 })
 
   } catch (error) {
     console.error('Error processing media:', error)
