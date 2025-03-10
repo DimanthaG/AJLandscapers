@@ -1,28 +1,4 @@
-import Image from "next/image"
 import { GalleryGrid } from "@/components/GalleryGrid"
-
-// This would typically come from a config file or CMS
-const galleryImages = [
-  {
-    src: "/gallery/landscape1.jpg",
-    alt: "Modern landscape design",
-    width: 600,
-    height: 400,
-  },
-  {
-    src: "/gallery/landscape2.jpg",
-    alt: "Garden maintenance",
-    width: 400,
-    height: 600,
-  },
-  {
-    src: "/gallery/landscape3.jpg",
-    alt: "Lawn care service",
-    width: 600,
-    height: 400,
-  },
-  // Add more images as needed
-]
 
 export default function GalleryPage() {
   return (
