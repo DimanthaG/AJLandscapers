@@ -13,11 +13,15 @@ export async function GET(request: Request) {
 
   try {
     // Try to fetch from database
-    const { data, error } = await supabase
+    const { data, error: dbError } = await supabase
       .from('content')
       .select('content')
       .eq('key', key)
       .single()
+
+    if (dbError) {
+      throw new Error(`Database error: ${dbError.message}`)
+    }
 
     // If content exists in database, return it
     if (data?.content) {
@@ -39,7 +43,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Content not found' }, { status: 404 })
   } catch (error) {
     console.error('Error fetching content:', error)
-    return NextResponse.json({ error: 'Failed to fetch content' }, { status: 500 })
+    return NextResponse.json({ 
+      error: 'Failed to fetch content',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 }
 
