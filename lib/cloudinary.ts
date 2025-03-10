@@ -1,5 +1,11 @@
 const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}`
 
+// Create a dedicated unsigned upload preset in your Cloudinary dashboard
+// Go to Settings > Upload > Upload presets > Add upload preset
+// Set "Signing Mode" to "Unsigned"
+// Name it "ajlandscaper_uploads"
+const UPLOAD_PRESET = 'ml_default'
+
 export async function uploadToCloudinary(
   file: File | Blob,
   options: {
@@ -11,32 +17,21 @@ export async function uploadToCloudinary(
   const { folder = 'gallery', resourceType = 'image', transformation = 'q_auto,f_auto' } = options
 
   try {
-    // Create upload signature for signed uploads
-    const timestamp = Math.round(new Date().getTime() / 1000)
-    const signature = await generateSignature(timestamp, {
-      folder,
-      transformation
-    })
-
-    // Create form data
+    // Create form data for unsigned upload
     const formData = new FormData()
     formData.append('file', file)
-    formData.append('api_key', process.env.CLOUDINARY_API_KEY!)
-    formData.append('timestamp', timestamp.toString())
-    formData.append('signature', signature)
+    formData.append('upload_preset', UPLOAD_PRESET)
     formData.append('folder', folder)
-    
-    // Don't require an upload preset - removed the upload_preset parameter
+    formData.append('transformation', transformation)
     
     // Log upload attempt
-    console.log('Attempting Cloudinary upload:', {
-      url: `${CLOUDINARY_URL}/${resourceType}/upload`,
-      folder,
-      resourceType,
-      timestamp
+    console.log('Starting Cloudinary upload...', {
+      type: resourceType,
+      preset: UPLOAD_PRESET,
+      folder: folder
     })
 
-    // Upload to Cloudinary
+    // Upload to Cloudinary using unsigned upload
     const response = await fetch(`${CLOUDINARY_URL}/${resourceType}/upload`, {
       method: 'POST',
       body: formData
@@ -57,34 +52,30 @@ export async function uploadToCloudinary(
 }
 
 export async function deleteFromCloudinary(publicId: string): Promise<void> {
-  const timestamp = Math.round(new Date().getTime() / 1000)
-  const signature = await generateSignature(timestamp, {
-    public_id: publicId
-  })
+  try {
+    // For deletion, we'll use the serverless function approach
+    // This is more secure than client-side deletion
+    const response = await fetch(`/api/cloudinary-delete?public_id=${encodeURIComponent(publicId)}`, {
+      method: 'DELETE'
+    })
 
-  const formData = new FormData()
-  formData.append('public_id', publicId)
-  formData.append('api_key', process.env.CLOUDINARY_API_KEY!)
-  formData.append('timestamp', timestamp.toString())
-  formData.append('signature', signature)
-
-  const response = await fetch(`${CLOUDINARY_URL}/destroy`, {
-    method: 'POST',
-    body: formData
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to delete from Cloudinary')
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(`Failed to delete from Cloudinary: ${errorData.error || 'Unknown error'}`)
+    }
+  } catch (error) {
+    console.error('Error deleting from Cloudinary:', error)
+    throw error
   }
 }
 
 export function getOptimizedUrl(publicId: string, options: {
   width?: number;
   height?: number;
-  quality?: number;
+  quality?: string;
   format?: 'auto' | 'webp' | 'jpg';
   resourceType?: 'image' | 'video';
-} = {}) {
+} = {}): string {
   const {
     width,
     height,
