@@ -94,23 +94,3 @@ export function getOptimizedUrl(publicId: string, options: {
 
   return `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/${resourceType}/upload/${transformations}/${publicId}`
 }
-
-async function generateSignature(
-  timestamp: number, 
-  params: Record<string, string | number>
-): Promise<string> {
-  const entries = Object.entries(params)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, value]) => `${key}=${value}`)
-    .join('&')
-
-  const stringToSign = `${entries}&timestamp=${timestamp}${process.env.CLOUDINARY_API_SECRET}`
-  
-  const encoder = new TextEncoder()
-  const data = encoder.encode(stringToSign)
-  const hashBuffer = await crypto.subtle.digest('SHA-1', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-  
-  return hashHex
-}
