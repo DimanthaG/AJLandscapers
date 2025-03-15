@@ -1,36 +1,16 @@
-import { Inter } from "next/font/google"
-import { AdminProvider } from "@/context/admin-context"
-import { AdminControls } from "@/components/AdminControls"
-import { TubelightNavbar } from "@/components/TubelightNavbar"
-import { ThemeProvider } from "@/components/theme-provider"
-import { siteConfig } from "@/config/site-config"
-import { initializeContentCache } from "@/lib/contentCache"
-import "./globals.css"
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import './animations.css'
+import { ThemeProvider } from '@/components/theme-provider'
+import { AdminProvider } from '@/context/admin-context'
+import { TubelightNavbar } from '@/components/TubelightNavbar'
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ['latin'] })
 
-// Initialize default content in cache
-const defaultContent = {
-  'hero-title': siteConfig.hero.title,
-  'hero-subtitle': siteConfig.hero.subtitle,
-  'about-title': siteConfig.about.title,
-  'about-description': siteConfig.about.description,
-  ...siteConfig.about.features.reduce((acc, feature, index) => ({
-    ...acc,
-    [`feature-${index}`]: feature
-  }), {}),
-  ...siteConfig.defaultServices.reduce((acc, service, index) => ({
-    ...acc,
-    [`service-title-${index}`]: service.title,
-    [`service-desc-${index}`]: service.description
-  }), {})
-}
-
-initializeContentCache(defaultContent)
-
-export const metadata = {
-  title: siteConfig.business.name,
-  description: siteConfig.hero.subtitle,
+export const metadata: Metadata = {
+  title: 'A&J Landscaping',
+  description: 'Professional landscaping services in Western Mass',
 }
 
 export default function RootLayout({
@@ -40,17 +20,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem={false}
-          storageKey="aj-theme"
+          enableSystem
+          disableTransitionOnChange
         >
           <AdminProvider>
             <TubelightNavbar />
             {children}
-            <AdminControls />
           </AdminProvider>
         </ThemeProvider>
       </body>

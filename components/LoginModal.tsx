@@ -10,7 +10,7 @@ interface LoginModalProps {
   error?: string
 }
 
-export function LoginModal({ isOpen, onClose, onLogin, error }: LoginModalProps) {
+export default function LoginModal({ isOpen, onClose, onLogin, error }: LoginModalProps) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
@@ -22,53 +22,53 @@ export function LoginModal({ isOpen, onClose, onLogin, error }: LoginModalProps)
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-      <div className="bg-gray-900 p-8 rounded-xl border border-gray-800 w-full max-w-md relative">
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 text-gray-400 hover:text-white"
-        >
-          <X className="h-5 w-5" />
-        </button>
-        
-        <h2 className="text-2xl font-bold text-green-500 mb-6">Admin Login</h2>
-        
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-[#1a1a1a] rounded-lg p-6 w-full max-w-md">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold text-white">Admin Login</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-white">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded text-red-500 text-sm">
+              {error}
+            </div>
+          )}
+          
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1">
+            <label htmlFor="username" className="block text-sm font-medium text-gray-400 mb-1">
               Username
             </label>
             <input
-              type="text"
               id="username"
+              type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-white"
-              required
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-white"
+              className="w-full px-3 py-2 bg-[#111111] text-white border border-white/10 rounded-lg focus:outline-none focus:border-primary"
               required
             />
           </div>
 
-          {error && (
-            <p className="text-red-500 text-sm">{error}</p>
-          )}
-          
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-400 mb-1">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 bg-[#111111] text-white border border-white/10 rounded-lg focus:outline-none focus:border-primary"
+              required
+            />
+          </div>
+
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+            className="w-full px-4 py-2 bg-primary hover:bg-primary-light text-white rounded-lg transition-colors"
           >
             Login
           </button>

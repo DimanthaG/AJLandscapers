@@ -1,0 +1,143 @@
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes text-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes service-transition {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes service-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Add your custom animations here */
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background-size: 200% 100%;
+}
+
+/* Add any other existing animations below */
+
+.animate-fade-up {
+  animation: fade-up 0.6s ease-out forwards;
+}
+
+.animate-duration-700 {
+  animation-duration: 700ms;
+}
+
+.animate-delay-300 {
+  animation-delay: 300ms;
+}
+
+.animate-delay-500 {
+  animation-delay: 500ms;
+}
+
+.animate-delay-700 {
+  animation-delay: 700ms;
+}
+
+.service-item {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.service-item-visible {
+  animation: service-transition 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.service-item-image {
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: service-transition 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.service-item h3 {
+  animation: text-reveal 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.service-text,
+.service-image {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.visible .service-text,
+.visible .service-image {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .service-item {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .service-item-image,
+  .service-item h3 {
+    transition: none;
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .animate-fade-up {
+    animation: none;
+    opacity: 1;
+  }
+
+  .service-text,
+  .service-image {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+}

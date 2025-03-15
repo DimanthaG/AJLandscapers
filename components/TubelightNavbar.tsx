@@ -1,138 +1,105 @@
-"use client"
+'use client'
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { motion } from "framer-motion"
-import { cn } from "@/lib/utils"
-import { Home, Info, Wrench, Image, Phone } from "lucide-react"
-import { siteConfig } from "@/config/site-config"
+import { usePathname } from 'next/navigation'
+import Link from 'next/link'
+import { cn } from '@/lib/utils'
+import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 
-const navigationItems = [
+const navItems = [
   {
-    name: "Home",
-    href: "/",
-    icon: Home
+    path: '/',
+    name: 'Home',
   },
   {
-    name: "About",
-    href: "/about",
-    icon: Info
+    path: '/about',
+    name: 'About',
   },
   {
-    name: "Services",
-    href: "/services",
-    icon: Wrench
+    path: '/services',
+    name: 'Services',
   },
   {
-    name: "Gallery",
-    href: "/gallery",
-    icon: Image
+    path: '/gallery',
+    name: 'Gallery',
   },
   {
-    name: "Contact",
-    href: "/contact",
-    icon: Phone
-  }
+    path: '/contact',
+    name: 'Contact',
+  },
 ]
 
 export function TubelightNavbar() {
   const pathname = usePathname()
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   return (
-    <>
-      {/* Desktop Navbar */}
-      <nav className="fixed top-0 inset-x-0 h-16 bg-gray-950/50 backdrop-blur-lg border-b border-gray-800 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-green-500">
-            {siteConfig.business.name}
+    <div className="fixed top-0 left-0 right-0 z-50">
+      <motion.nav 
+        className={cn(
+          "w-full bg-white transition-all duration-300",
+          scrolled 
+            ? "py-2 px-6 mt-2 mx-auto max-w-7xl rounded-full shadow-lg border border-gray-200" 
+            : "py-4 px-8"
+        )}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
+        <div className={cn(
+          "flex items-center justify-between",
+          !scrolled && "max-w-7xl mx-auto"
+        )}>
+          {/* Logo */}
+          <Link 
+            href="/" 
+            className="text-[#a3a300] font-bold text-2xl hover:text-[#a3a300]/90 transition-colors"
+          >
+            AJLandscapers
           </Link>
-          
-          <div className="hidden md:flex items-center gap-2 bg-gray-900/50 backdrop-blur px-2 py-1 rounded-full">
-            {navigationItems.map((item) => {
-              const isActive = pathname === item.href
-              const Icon = item.icon
+
+          {/* Navigation Items */}
+          <ul className="flex items-center gap-2">
+            {navItems.map(({ path, name }) => {
+              const isActive = pathname === path
 
               return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={cn(
-                    "relative px-4 py-2 text-sm font-medium rounded-full transition-colors",
-                    "hover:text-green-400",
-                    isActive ? "text-green-500" : "text-gray-400"
-                  )}
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    <Icon className="w-4 h-4" />
-                    <span>{item.name}</span>
-                  </span>
-                  {isActive && (
-                    <motion.div
-                      layoutId="navbar-indicator"
-                      className="absolute inset-0 bg-gray-800 rounded-full -z-10"
-                      transition={{
-                        type: "spring",
-                        stiffness: 350,
-                        damping: 30
-                      }}
-                    />
-                  )}
-                </Link>
-              )
-            })}
-          </div>
-        </div>
-      </nav>
-
-      {/* Mobile Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
-        <div className="bg-gray-900/90 backdrop-blur border-t border-gray-800">
-          {/* Mobile Brand Bar */}
-          <div className="flex items-center justify-center py-2 border-b border-gray-800/50">
-            <Link href="/" className="text-lg font-bold text-green-500">
-              {siteConfig.business.name}
-            </Link>
-          </div>
-          
-          {/* Mobile Navigation Items */}
-          <div className="px-6 py-3">
-            <div className="flex items-center justify-between">
-              {navigationItems.map((item) => {
-                const isActive = pathname === item.href
-                const Icon = item.icon
-
-                return (
+                <li key={path}>
                   <Link
-                    key={item.name}
-                    href={item.href}
+                    href={path}
                     className={cn(
-                      "relative flex flex-col items-center gap-1 px-3",
-                      "text-gray-400 hover:text-green-400",
-                      isActive && "text-green-500"
+                      'relative px-4 py-2 text-sm font-medium transition-all duration-300 rounded-lg block hover:scale-105',
+                      isActive 
+                        ? 'text-[#a3a300] bg-[#a3a300]/10' 
+                        : 'text-gray-600 hover:text-[#a3a300] hover:bg-[#a3a300]/5'
                     )}
                   >
-                    <span className="relative">
-                      <Icon className="w-6 h-6" />
-                      {isActive && (
-                        <motion.div
-                          layoutId="mobile-navbar-indicator"
-                          className="absolute inset-0 bg-gray-800 rounded-full -z-10 scale-150"
-                          transition={{
-                            type: "spring",
-                            stiffness: 350,
-                            damping: 30
-                          }}
-                        />
-                      )}
-                    </span>
-                    <span className="text-xs font-medium">{item.name}</span>
+                    {isActive && (
+                      <motion.div 
+                        className="absolute inset-0 bg-[#a3a300]/10 rounded-lg z-0" 
+                        layoutId="tubelight"
+                        transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                      >
+                        <div className="absolute inset-0 bg-[#a3a300]/10 rounded-lg filter blur-md" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#a3a300]/20 to-transparent animate-shimmer" />
+                      </motion.div>
+                    )}
+                    <span className="relative z-10">{name}</span>
                   </Link>
-                )
-              })}
-            </div>
-          </div>
+                </li>
+              )
+            })}
+          </ul>
         </div>
-      </div>
-    </>
+      </motion.nav>
+    </div>
   )
 }

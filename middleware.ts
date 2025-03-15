@@ -1,23 +1,40 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { verifyToken } from '@/app/utils/jwt'
 
-// Verify authentication for admin-only API routes
-export function middleware(request: NextRequest) {
-  const adminToken = request.cookies.get('admin-token')
-  const isApiRoute = request.nextUrl.pathname.startsWith('/api/')
-  const isAuthRoute = request.nextUrl.pathname.startsWith('/api/auth')
-  
-  // Don't protect the auth route itself
-  if (isAuthRoute) {
+// Add paths that require authentication
+const protectedPaths = ['/dashboard']
+
+export async function middleware(request: NextRequest) {
+  const path = request.nextUrl.pathname
+
+  // Only check authentication for protected paths
+  if (!protectedPaths.includes(path)) {
     return NextResponse.next()
   }
 
-  // Protect admin API routes
-  if (isApiRoute && request.nextUrl.pathname.includes('/admin')) {
-    if (!adminToken || adminToken.value !== 'authenticated') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  const token = request.cookies.get('auth_token')?.value
+
+  if (!token) {
+    console.log('No auth token found, redirecting to login')
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  return NextResponse.next()
+  try {
+    const payload = await verifyToken(token)
+    
+    if (!payload || payload.role !== 'admin') {
+      console.log('Invalid role in token, redirecting to login')
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+
+    return NextResponse.next()
+  } catch (error) {
+    console.log('Token verification failed:', error)
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+}
+
+export const config = {
+  matcher: ['/dashboard/:path*']
 }

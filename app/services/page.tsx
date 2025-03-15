@@ -86,11 +86,11 @@ export default function ServicesPage() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-gray-900 pt-24">
+      <main className="min-h-screen bg-[#111111] pt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="animate-pulse space-y-8">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-64 bg-gray-800 rounded-xl" />
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-64 bg-[#1a1a1a] rounded-lg" />
             ))}
           </div>
         </div>
@@ -99,32 +99,70 @@ export default function ServicesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-900 pt-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-4xl font-bold text-green-500 text-center mb-12">Our Services</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {services.map((service) => (
-            <EditableServiceCard
-              key={service.id}
-              service={service}
-              onDelete={handleDeleteService}
-              onUpdate={handleUpdateService}
-            />
-          ))}
-          
-          {isAdmin && (
-            <button
-              onClick={handleAddService}
-              className="h-full min-h-[300px] flex items-center justify-center border-2 border-dashed border-green-500 rounded-xl hover:border-green-400 hover:bg-gray-800/50 transition-all group"
-            >
-              <div className="flex flex-col items-center text-green-500 group-hover:text-green-400">
-                <Plus className="h-12 w-12 mb-2" />
-                <span className="text-lg font-medium">Add New Service</span>
-              </div>
-            </button>
-          )}
+    <main className="min-h-screen bg-[#111111]">
+      {/* Hero Section */}
+      <section className="hero-section" style={{ height: '60vh', minHeight: '400px' }}>
+        <div className="absolute inset-0">
+          <img
+            src="https://source.unsplash.com/1600x900/?landscaping,garden"
+            alt="Services Hero"
+            className="object-cover w-full h-full"
+          />
+          <div className="absolute inset-0 bg-black/50" />
         </div>
-      </div>
+        <div className="relative z-10 text-center">
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">Our Services</h1>
+          <p className="text-xl text-gray-100 max-w-2xl mx-auto">
+            Professional landscaping solutions tailored to your needs
+          </p>
+        </div>
+      </section>
+
+      {/* Services Grid */}
+      <section className="section-padding bg-[#111111]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.map((service) => (
+              <EditableServiceCard
+                key={service.id}
+                service={service}
+                onDelete={handleDeleteService}
+                onUpdate={handleUpdateService}
+              />
+            ))}
+            
+            {isAdmin && (
+              <button
+                onClick={handleAddService}
+                className="h-full min-h-[400px] flex items-center justify-center border-2 border-dashed border-primary dark:border-primary-light rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all group"
+              >
+                <div className="flex flex-col items-center text-primary dark:text-primary-light group-hover:text-primary-light">
+                  <Plus className="h-12 w-12 mb-2" />
+                  <span className="text-lg font-medium">Add New Service</span>
+                </div>
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="section-padding bg-[#1a1a1a]">
+        <div className="max-w-3xl mx-auto text-center px-4">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+            Ready to Transform Your Outdoor Space?
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-8">
+            Contact us today for a free consultation and quote. Let's bring your vision to life.
+          </p>
+          <a
+            href="/contact"
+            className="button-primary text-lg inline-block"
+          >
+            Get Your Free Quote
+          </a>
+        </div>
+      </section>
     </main>
   )
 }

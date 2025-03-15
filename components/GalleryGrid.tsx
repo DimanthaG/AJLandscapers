@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import { useAdmin } from '@/context/admin-context'
 import { Plus, X, Loader2, Play } from 'lucide-react'
 import { compressImage, getImageDimensions } from '@/lib/imageUtils'
 import { compressVideo } from '@/lib/videoUtils'
+import { EditableImage } from './EditableImage'
 
 interface MediaItem {
   id: string
@@ -211,24 +211,26 @@ export function GalleryGrid() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 text-green-500 animate-spin" />
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <div key={i} className="aspect-[4/3] bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+        ))}
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
-      <div className="columns-1 md:columns-2 lg:columns-3 gap-4">
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {media.map((item) => (
           !mediaErrors[item.id] && (
-            <div key={item.id} className="relative mb-4 break-inside-avoid group">
+            <div key={item.id} className="group relative aspect-[4/3] overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300">
               {item.type === 'video' ? (
-                <div className="relative aspect-video">
+                <div className="h-full">
                   <video
                     src={item.src}
                     controls
-                    className="w-full rounded-lg"
+                    className="h-full w-full object-cover"
                     onError={() => handleImageError(item.id)}
                   />
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -236,19 +238,22 @@ export function GalleryGrid() {
                   </div>
                 </div>
               ) : (
-                <Image
-                  src={item.src}
-                  alt={item.alt}
-                  width={item.width}
-                  height={item.height}
-                  className="rounded-lg hover:opacity-90 transition-opacity"
-                  onError={() => handleImageError(item.id)}
-                />
+                <>
+                  <EditableImage
+                    id={`gallery-${item.id}`}
+                    src={item.src}
+                    alt={item.alt}
+                    fill
+                    className="h-full w-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                    onError={() => handleImageError(item.id)}
+                  />
+                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </>
               )}
               {isAdmin && (
                 <button
                   onClick={() => removeMedia(item.id)}
-                  className="absolute top-2 right-2 p-1 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute top-2 right-2 p-2 bg-red-500 hover:bg-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
                 >
                   <X className="h-4 w-4 text-white" />
                 </button>
@@ -259,8 +264,8 @@ export function GalleryGrid() {
       </div>
       
       {isAdmin && (
-        <div className="relative mb-4 break-inside-avoid">
-          <label className={`block w-full aspect-[3/2] rounded-lg border-2 border-dashed border-green-500 hover:border-green-400 transition-colors cursor-pointer ${
+        <div className="relative">
+          <label className={`block w-full aspect-[4/3] sm:aspect-[16/9] max-w-2xl mx-auto rounded-lg border-2 border-dashed border-primary dark:border-primary-light hover:border-primary-light transition-colors cursor-pointer ${
             isUploading ? 'opacity-50 cursor-not-allowed' : ''
           }`}>
             <input
@@ -270,23 +275,20 @@ export function GalleryGrid() {
               onChange={handleFileUpload}
               disabled={isUploading}
             />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-green-500">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-primary dark:text-primary-light">
               {isUploading ? (
                 <>
                   <Loader2 className="h-12 w-12 mb-2 animate-spin" />
                   <span className="text-sm font-medium">
-                    Compressing... {uploadProgress}%
+                    Optimizing... {uploadProgress}%
                   </span>
                 </>
               ) : (
                 <>
                   <Plus className="h-12 w-12 mb-2" />
-                  <span className="text-sm font-medium">Add Media</span>
-                  <span className="text-xs text-gray-400 mt-1">
-                    Images will be compressed to ~300KB
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    Videos will be compressed to ~5MB
+                  <span className="text-lg font-medium">Add to Gallery</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    Upload images or videos
                   </span>
                 </>
               )}

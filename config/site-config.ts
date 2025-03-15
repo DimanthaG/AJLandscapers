@@ -1,94 +1,101 @@
-export const siteConfig = {
+export type SiteConfig = {
   business: {
-    name: "AJ Landscapers",
-    email: "contact@ajlandscapers.com",
-    phone: "(647) 123-4567",
+    name: string
+    email: string
+    phone: string
     address: {
-      street: "123 Example Street",
-      city: "Scarborough",
+      street: string
+      city: string
+      province: string
+      postalCode: string
+    }
+    hours: {
+      monday: string
+      tuesday: string
+      wednesday: string
+      thursday: string
+      friday: string
+      saturday: string
+      sunday: string
+    }
+  }
+  hero: {
+    title: string
+    subtitle: string
+    cta: string
+    image: string
+  }
+  about: {
+    title: string
+    description: string
+    features: string[]
+  }
+  social: {
+    facebook?: string
+    twitter?: string
+    instagram?: string
+    linkedin?: string
+  }
+  defaultServices: Array<{
+    title: string
+    description: string
+    image: string
+  }>
+}
+
+export const siteConfig: SiteConfig = {
+  business: {
+    name: "AJ Landscaper",
+    email: "info@ajlandscaper.com",
+    phone: "(555) 123-4567",
+    address: {
+      street: "123 Main Street",
+      city: "Toronto",
       province: "ON",
-      postalCode: "M1X 2Y3"
+      postalCode: "M1M 1M1"
     },
     hours: {
-      monday: "8:00 AM - 6:00 PM",
-      tuesday: "8:00 AM - 6:00 PM",
-      wednesday: "8:00 AM - 6:00 PM",
-      thursday: "8:00 AM - 6:00 PM",
-      friday: "8:00 AM - 6:00 PM",
-      saturday: "9:00 AM - 4:00 PM",
+      monday: "9:00 AM - 5:00 PM",
+      tuesday: "9:00 AM - 5:00 PM",
+      wednesday: "9:00 AM - 5:00 PM",
+      thursday: "9:00 AM - 5:00 PM",
+      friday: "9:00 AM - 5:00 PM",
+      saturday: "10:00 AM - 4:00 PM",
       sunday: "Closed"
     }
   },
-  social: {
-    facebook: "https://facebook.com/ajlandscapers",
-    instagram: "https://instagram.com/ajlandscapers",
-    twitter: "https://twitter.com/ajlandscapers",
-    linkedin: "https://linkedin.com/company/ajlandscapers"
-  },
   hero: {
     title: "Transform Your Outdoor Space",
-    subtitle: "Professional landscaping services in Scarborough and surrounding areas",
-    cta: "Get a Free Quote"
+    subtitle: "Professional landscaping and hardscaping services in the Greater Toronto Area",
+    cta: "Get Free Quote",
+    image: "/images/hero.jpg"
   },
   about: {
-    title: "About AJ Landscapers",
-    description: `With years of experience in landscaping and outdoor design, AJ Landscapers 
-    brings expertise and creativity to every project. We take pride in transforming outdoor 
-    spaces into beautiful, functional environments that exceed our clients' expectations.`,
+    title: "About AJ Landscaper",
+    description: "With over 15 years of experience, we specialize in creating beautiful and functional outdoor spaces that exceed our clients' expectations.",
     features: [
-      "Professional & Experienced Team",
-      "High-Quality Materials",
-      "Timely Project Completion",
-      "Customer Satisfaction Guaranteed"
+      "Licensed & Insured",
+      "Free Consultations",
+      "Custom Designs",
+      "Quality Materials",
+      "Expert Installation",
+      "Maintenance Services"
     ]
   },
-  contact: {
-    title: "Get in Touch",
-    subtitle: "Ready to transform your outdoor space? Contact us for a free consultation.",
-    form: {
-      namePlaceholder: "Your Name",
-      emailPlaceholder: "Your Email",
-      phonePlaceholder: "Your Phone",
-      messagePlaceholder: "Tell us about your project",
-      submitText: "Send Message"
-    }
+  social: {
+    facebook: "https://facebook.com/ajlandscaper",
+    instagram: "https://instagram.com/ajlandscaper"
   },
   defaultServices: [
     {
-      id: 'service-1',
       title: "Landscape Design",
-      description: "Custom landscape design services tailored to your vision and property.",
-      image: "https://source.unsplash.com/800x600/?landscape-design"
+      description: "Custom landscape design services tailored to your needs",
+      image: "/images/services/landscape-design.jpg"
     },
     {
-      id: 'service-2',
-      title: "Garden Maintenance",
-      description: "Regular maintenance to keep your garden healthy and beautiful year-round.",
-      image: "https://source.unsplash.com/800x600/?garden-maintenance"
-    },
-    {
-      id: 'service-3',
       title: "Hardscaping",
-      description: "Professional installation of patios, walkways, and retaining walls.",
-      image: "https://source.unsplash.com/800x600/?hardscape"
-    },
-    {
-      id: 'service-4',
-      title: "Lawn Care",
-      description: "Complete lawn care services including mowing, fertilization, and weed control.",
-      image: "https://source.unsplash.com/800x600/?lawn-care"
-    },
-    {
-      id: 'service-5',
-      title: "Tree & Shrub Care",
-      description: "Expert pruning, planting, and maintenance of trees and shrubs.",
-      image: "https://source.unsplash.com/800x600/?tree-care"
-    },
-    {
-      id: 'service-6',
-      title: "Irrigation Systems",
-      description: "Installation and maintenance of efficient irrigation systems.",
-      image: "https://source.unsplash.com/800x600/?irrigation"
+      description: "Professional hardscaping services for patios, walkways, and more",
+      image: "/images/services/hardscaping.jpg"
     }
   ]
 }

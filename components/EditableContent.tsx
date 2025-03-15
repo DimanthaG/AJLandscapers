@@ -1,22 +1,25 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAdmin } from '@/context/admin-context'
 import { Pencil } from 'lucide-react'
 import { getContentCache, setContentCache } from '@/lib/contentCache'
+import { makeEditable } from '@/utils/editMode'
 
 interface EditableContentProps {
   content: string
   id: string
   className?: string
+  as?: keyof JSX.IntrinsicElements
 }
 
-export function EditableContent({ content: initialContent, id, className = "" }: EditableContentProps) {
+export const EditableContent = ({ content: initialContent, id, className = "", as: Tag = "div" }: EditableContentProps) => {
   const { isAdmin } = useAdmin()
   const [isEditing, setIsEditing] = useState(false)
   const [editedContent, setEditedContent] = useState(() => getContentCache(id) || initialContent)
   const [isHovered, setIsHovered] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const elementRef = useRef<HTMLElement>(null)
   
   useEffect(() => {
     // Only fetch from API if we don't have it in cache
@@ -36,6 +39,12 @@ export function EditableContent({ content: initialContent, id, className = "" }:
       fetchContent()
     }
   }, [id])
+
+  useEffect(() => {
+    if (elementRef.current) {
+      makeEditable(elementRef.current, id, editedContent)
+    }
+  }, [editedContent, id])
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -71,7 +80,7 @@ export function EditableContent({ content: initialContent, id, className = "" }:
   }
 
   if (!isAdmin) {
-    return <div className={className}>{editedContent}</div>
+    return <Tag ref={elementRef} className={className}>{editedContent}</Tag>
   }
 
   if (isEditing) {
@@ -111,12 +120,13 @@ export function EditableContent({ content: initialContent, id, className = "" }:
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div 
+      <Tag 
+        ref={elementRef}
         className={`${className} ${isHovered ? 'ring-2 ring-green-500/50 rounded-lg' : ''}`}
         onClick={() => setIsEditing(true)}
       >
         {editedContent}
-      </div>
+      </Tag>
       {isHovered && (
         <div className="absolute -right-12 top-1/2 -translate-y-1/2 bg-green-500 text-white p-2 rounded-full shadow-lg cursor-pointer">
           <Pencil className="h-4 w-4" />

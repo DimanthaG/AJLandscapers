@@ -4,13 +4,104 @@ import { EditableContent } from "@/components/EditableContent"
 import { EditableImage } from "@/components/EditableImage"
 import { siteConfig } from "@/config/site-config"
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, FormEvent } from "react"
+import "./animations.css"
+import { ServicePreviewCard } from '@/components/ServicePreviewCard'
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useRouter } from 'next/navigation'
+import { makeEditable } from '@/utils/editMode'
 
-export default function Home() {
-  const [heroImage, setHeroImage] = useState("https://source.unsplash.com/1920x1080/?landscape,garden")
+export default function Home(): JSX.Element {
+  const [heroImage, setHeroImage] = useState("/images/HeroImage.jpg")
+  const [scrollY, setScrollY] = useState(0)
+  const servicesRef = useRef<HTMLDivElement>(null)
+  const servicesScrollRef = useRef<HTMLDivElement>(null)
+  const [showScrollHint, setShowScrollHint] = useState(true)
+  const [showLeftScroll, setShowLeftScroll] = useState(false)
+  const [showRightScroll, setShowRightScroll] = useState(true)
+  const [imageScale, setImageScale] = useState(1)
+
+  // Form state
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    service: '',
+    message: ''
+  })
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: 'success' | 'error' | null
+    message: string
+  }>({ type: null, message: '' })
+
+  const router = useRouter()
+
+  const heroTitleRef = useRef<HTMLHeadingElement>(null)
+  const heroSubtitleRef = useRef<HTMLParagraphElement>(null)
+  const heroImageRef = useRef<HTMLImageElement>(null)
+  const aboutTitleRef = useRef<HTMLHeadingElement>(null)
+  const aboutDescRef = useRef<HTMLParagraphElement>(null)
 
   useEffect(() => {
-    // Try to fetch saved hero image from database
+    // Make elements editable in edit mode
+    if (heroTitleRef.current) {
+      makeEditable(heroTitleRef.current, 'hero.title', siteConfig.hero.title)
+    }
+    if (heroSubtitleRef.current) {
+      makeEditable(heroSubtitleRef.current, 'hero.subtitle', siteConfig.hero.subtitle)
+    }
+    if (heroImageRef.current) {
+      makeEditable(heroImageRef.current, 'hero.image', siteConfig.hero.image, 'image')
+    }
+    if (aboutTitleRef.current) {
+      makeEditable(aboutTitleRef.current, 'about.title', siteConfig.about.title)
+    }
+    if (aboutDescRef.current) {
+      makeEditable(aboutDescRef.current, 'about.description', siteConfig.about.description, 'richtext')
+    }
+  }, [])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible')
+            // Hide the scroll hint after the user has seen the services section
+            setTimeout(() => setShowScrollHint(false), 5000)
+          }
+        })
+      },
+      {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1
+      }
+    )
+    
+    if (servicesRef.current) {
+      observer.observe(servicesRef.current)
+    }
+    
+    const serviceItems = document.querySelectorAll('.service-item')
+    serviceItems.forEach((item) => observer.observe(item))
+    return () => {
+      if (servicesRef.current) observer.unobserve(servicesRef.current)
+      serviceItems.forEach((item) => observer.unobserve(item))
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
     const fetchHeroImage = async () => {
       try {
         const response = await fetch('/api/content?key=image-hero')
@@ -25,152 +116,330 @@ export default function Home() {
     fetchHeroImage()
   }, [])
 
-  return (
-    <main className="min-h-screen bg-gray-900">
-      {/* Hero Section */}
-      <section className="relative h-screen">
-        <div className="absolute inset-0">
-          <EditableImage
-            id="hero"
-            src={heroImage}
-            alt="Beautiful landscaping"
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-black/60" />
-        </div>
-        
-        <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 max-w-4xl">
-            <EditableContent
-              content={siteConfig.hero.title}
-              id="hero-title"
-            />
-          </h1>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl">
-            <EditableContent
-              content={siteConfig.hero.subtitle}
-              id="hero-subtitle"
-            />
-          </p>
-          <Link
-            href="/contact"
-            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
-          >
-            {siteConfig.hero.cta}
-          </Link>
-        </div>
+  // Handle horizontal scroll buttons
+  const scrollLeft = () => {
+    if (servicesScrollRef.current) {
+      servicesScrollRef.current.scrollBy({ left: -300, behavior: 'smooth' })
+    }
+  }
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <svg
-            className="w-6 h-6 text-white"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-          </svg>
+  const scrollRight = () => {
+    if (servicesScrollRef.current) {
+      servicesScrollRef.current.scrollBy({ left: 300, behavior: 'smooth' })
+    }
+  }
+
+  // Update scroll indicators based on scroll position
+  const handleScrollUpdate = () => {
+    if (!servicesScrollRef.current) return
+
+    const { scrollLeft, scrollWidth, clientWidth } = servicesScrollRef.current
+    setShowLeftScroll(scrollLeft > 20)
+    setShowRightScroll(scrollLeft < scrollWidth - clientWidth - 20)
+    
+    // Hide the scroll hint once user starts scrolling manually
+    if (scrollLeft > 10) {
+      setShowScrollHint(false)
+    }
+  }
+
+  useEffect(() => {
+    const scrollContainer = servicesScrollRef.current
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScrollUpdate)
+      // Initial check
+      handleScrollUpdate()
+      return () => scrollContainer.removeEventListener('scroll', handleScrollUpdate)
+    }
+  }, [])
+
+  // Update image scale on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const newScale = 1 + (scrollY * 0.0005); // Subtle scale effect on scroll
+      setImageScale(newScale);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    let keys: string[] = []
+    const adminCode = ['Control', 'Alt', 'a'] // Ctrl + Alt + A
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Control' || e.key === 'Alt' || e.key === 'a') {
+        if (!keys.includes(e.key)) {
+          keys.push(e.key)
+        }
+
+        // Check if all required keys are pressed
+        if (adminCode.every(key => keys.includes(key))) {
+          router.push('/login')
+        }
+      }
+    }
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'Control' || e.key === 'Alt' || e.key === 'a') {
+        keys = keys.filter(key => key !== e.key)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
+    }
+  }, [router])
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setSubmitStatus({ type: null, message: '' })
+
+    try {
+      const response = await fetch('/api/quote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit form')
+      }
+
+      setSubmitStatus({
+        type: 'success',
+        message: 'Thank you for your quote request! We will get back to you soon.'
+      })
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        service: '',
+        message: ''
+      })
+    } catch (error) {
+      setSubmitStatus({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to submit form'
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  return (
+    <main className="min-h-screen bg-[#111111]">
+      {/* Hero Section */}
+      <section className="hero-section">
+        <div className="hero-content">
+          <div className="hero-text">
+            <h1 className="animate-fade-up animate-duration-700 animate-delay-300">
+              <EditableContent
+                content={siteConfig.hero.title}
+                id="hero-title"
+              />
+            </h1>
+            <p className="animate-fade-up animate-duration-700 animate-delay-500">
+              <EditableContent
+                content={siteConfig.hero.subtitle}
+                id="hero-subtitle"
+                as="span"
+              />
+            </p>
+            <div className="animate-fade-up animate-duration-700 animate-delay-700">
+              <Link 
+                href="/contact" 
+                className="inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-primary hover:bg-primary-light transition-all duration-300 rounded-lg hover:scale-105"
+              >
+                <EditableContent
+                  content={siteConfig.hero.cta}
+                  id="hero-cta"
+                />
+              </Link>
+            </div>
+          </div>
+          
+          <div className="relative">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/30 to-primary-light/30 rounded-[25px] blur opacity-75 group-hover:opacity-100 transition duration-1000"></div>
+            <div className="hero-image-container relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent z-10 pointer-events-none" />
+              <EditableImage
+                id="hero"
+                src={heroImage}
+                alt="Beautiful landscaping"
+                fill
+                className="object-cover transition-transform duration-300"
+                priority
+                style={{ transform: `scale(${imageScale})` }}
+              />
+            </div>
+          </div>
         </div>
       </section>
+      {/* Features Section */}
+      <section className="bg-[#a3a300] py-8">
+        <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
+          <div className="text-center">
+            <p className="text-lg font-semibold text-black">TRUSTED</p>
+          </div>
+          <div className="text-center">
+            <p className="text-lg font-semibold text-black">RELIABLE</p>
+          </div>
+          <div className="text-center">
+            <p className="text-lg font-semibold text-black">QUALIFIED AND EXPERIENCED</p>
+          </div>
+        </div>
+      </section>
+      {/* Services Preview - Horizontal Scrollable Section */}
+      <section className="section-padding bg-[#111111]/80" ref={servicesRef}>
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-8">
+            <EditableContent
+              content="Our Services"
+              id="services-preview-title"
+            />
+          </h2>
+          
+          <div className={`text-center text-gray-400 mb-16 flex items-center justify-center ${showScrollHint ? 'scroll-hint-animation' : ''}`}>
+            <ChevronLeft className="w-5 h-5 mr-2" /> 
+            <span>Swipe or scroll to explore our services</span> 
+            <ChevronRight className="w-5 h-5 ml-2" />
+          </div>
+          
+          <div className="relative">
+            {/* Left scroll button */}
+            <button 
+              onClick={scrollLeft}
+              className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-[#111111]/70 text-white p-3 rounded-full shadow-xl hover:bg-[#a3a300] transition-all duration-300 ${!showLeftScroll ? 'opacity-0' : 'opacity-100'}`}
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            
+            {/* Right scroll button */}
+            <button 
+              onClick={scrollRight}
+              className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-[#111111]/70 text-white p-3 rounded-full shadow-xl hover:bg-[#a3a300] transition-all duration-300 ${!showRightScroll ? 'opacity-0' : 'opacity-100'}`} 
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+            
+            {/* Scrollable container */}
+            <div 
+              ref={servicesScrollRef} 
+              className="flex overflow-x-auto pb-8 gap-6 hide-scrollbar snap-x snap-mandatory"
+              style={{ scrollbarWidth: 'none' }}
+            >
+              {[
+                { 
+                  title: "Breath taking Hard Scape", 
+                  id: "hardscape",
+                  image: "/images/IMG_18182.PNG"
+                },
+                { 
+                  title: "Elegant Court Yards", 
+                  id: "courtyard",
+                  image: "/images/IMG_18052.PNG"
+                },
+                { 
+                  title: "Scenic Entrances", 
+                  id: "entrance",
+                  image: "/images/IMG_18132.PNG"
+                },
+                { 
+                  title: "Personal and Outdoor Dining", 
+                  id: "dining",
+                  image: "https://images.unsplash.com/photo-1604014237800-1c9102c219da?w=800&h=1200&auto=format&q=80"
+                },
+                { 
+                  title: "Cosy and Quiet Escape", 
+                  id: "escape",
+                  image: "https://images.unsplash.com/photo-1598512199776-e0aa7b73d02e?w=800&h=1200&auto=format&q=80"
+                },
+                { 
+                  title: "Hollywood Moment", 
+                  id: "hollywood",
+                  image: "https://images.unsplash.com/photo-1598912428627-112ce665e176?w=800&h=1200&auto=format&q=80"
+                },
+                { 
+                  title: "Timeless Railings", 
+                  id: "railings",
+                  image: "https://images.unsplash.com/photo-1578301978069-45264734cddc?w=800&h=1200&auto=format&q=80"
+                },
+                { 
+                  title: "One of a Kind Garden Fences", 
+                  id: "fences",
+                  image: "https://images.unsplash.com/photo-1621496503717-095a594c4d45?w=800&h=1200&auto=format&q=80"
+                },
+                { 
+                  title: "Majestic Columns and Gates", 
+                  id: "gates",
+                  image: "https://images.unsplash.com/photo-1553855994-ef3aded468f4?w=800&h=1200&auto=format&q=80"
+                },
+                { 
+                  title: "High Quality Life Time Warranty Fences", 
+                  id: "warranty-fences",
+                  image: "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?w=800&h=1200&auto=format&q=80"
+                }
+              ].map((service, index) => (
+                <div key={service.id} className="min-w-[300px] sm:min-w-[350px] flex-shrink-0 snap-start">
+                  <ServicePreviewCard
+                    key={service.id}
+                    title={service.title}
+                    image={service.image}
+                    id={service.id}
+                    index={index}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
 
-      {/* Services Preview */}
-      <section className="py-20 bg-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-green-500 mb-12">Our Services</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {siteConfig.defaultServices.slice(0, 3).map((service, index) => (
-              <div
-                key={index}
-                className="bg-gray-900 rounded-lg p-6 hover:bg-gray-800 transition-colors"
-              >
-                <h3 className="text-xl font-bold text-green-400 mb-4">
-                  <EditableContent
-                    content={service.title}
-                    id={`service-title-${index}`}
-                  />
-                </h3>
-                <p className="text-gray-400">
-                  <EditableContent
-                    content={service.description}
-                    id={`service-desc-${index}`}
-                  />
-                </p>
-              </div>
+          <div className="flex justify-center gap-2 mt-8">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <button 
+                key={i}
+                className={`w-2 h-2 rounded-full bg-white/30 hover:bg-[#a3a300] transition-all`}
+                aria-label={`Go to slide ${i + 1}`}
+              />
             ))}
           </div>
-          <div className="text-center mt-12">
-            <Link
-              href="/services"
-              className="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
+          
+          <div className="text-center mt-16">
+            <Link 
+              href="/services" 
+              className="inline-flex items-center px-8 py-4 text-lg font-semibold text-[#111111] bg-primary hover:bg-primary-light transition-all duration-300 rounded-lg hover:scale-105"
             >
               View All Services
             </Link>
           </div>
         </div>
       </section>
-
       {/* About Section */}
-      <section className="py-24 px-4 bg-gray-950 relative">
-        <div className="absolute inset-0 bg-green-500/5" />
-        <div className="max-w-4xl mx-auto relative">
-          <h2 className="text-4xl font-bold text-center mb-8 text-green-500">
-            <EditableContent
-              content={siteConfig.about.title}
-              id="about-title"
-            />
-          </h2>
-          <p className="text-gray-300 text-center mb-12 text-lg">
-            <EditableContent
-              content={siteConfig.about.description}
-              id="about-description"
-            />
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-            {siteConfig.about.features.map((feature, index) => (
-              <div
-                key={index}
-                className="bg-gray-900/50 backdrop-blur p-4 rounded-xl border border-gray-800"
-              >
-                <EditableContent
-                  content={feature}
-                  id={`feature-${index}`}
-                  className="text-gray-300 text-center"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* About Preview */}
-      <section className="py-20 bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <h2 className="text-3xl font-bold text-green-500">
-                <EditableContent
-                  content={siteConfig.about.title}
-                  id="about-title"
-                />
-              </h2>
-              <div className="text-gray-300 text-lg">
-                <EditableContent
-                  content={siteConfig.about.description}
-                  id="about-description"
-                />
-              </div>
-              <Link
-                href="/about"
-                className="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
-              >
-                Learn More
-              </Link>
-            </div>
-            <div className="relative h-[400px] rounded-lg overflow-hidden">
+      <section className="section-padding bg-[#111111]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-xl">
               <EditableImage
                 id="about-preview"
                 src="https://source.unsplash.com/800x600/?landscape,garden"
@@ -179,128 +448,160 @@ export default function Home() {
                 className="object-cover"
               />
             </div>
+            <div className="space-y-8">
+              <h2 className="text-4xl font-bold text-gray-900 dark:text-white">
+                <EditableContent
+                  content={siteConfig.about.title}
+                  id="about-title"
+                />
+              </h2>
+              <div className="text-gray-600 dark:text-gray-300 text-lg">
+                <EditableContent
+                  content={siteConfig.about.description}
+                  id="about-description"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-6">
+                {siteConfig.about.features.map((feature, index) => (
+                  <div key={index} className="flex items-start space-x-3">
+                    <svg className="w-6 h-6 text-primary flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-gray-700 dark:text-gray-300">
+                      <EditableContent
+                        content={feature}
+                        id={`feature-${index}`}
+                      />
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <Link href="/about" className="button-primary inline-block mt-6">
+                Learn More
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-24 px-4 bg-gray-900">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-16 text-green-500">Contact Us</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div className="space-y-8">
-              <div className="bg-gray-800 p-8 rounded-xl border border-gray-700">
-                <h3 className="text-xl font-semibold mb-6 text-green-400">Contact Information</h3>
-                <div className="space-y-4 text-gray-300">
-                  <p>
-                    <strong className="block text-white mb-1">Address:</strong>
-                    {siteConfig.business.address.street}<br />
-                    {siteConfig.business.address.city}, {siteConfig.business.address.province}
-                  </p>
-                  <p>
-                    <strong className="block text-white mb-1">Phone:</strong>
-                    {siteConfig.business.phone}
-                  </p>
-                  <p>
-                    <strong className="block text-white mb-1">Email:</strong>
-                    {siteConfig.business.email}
-                  </p>
-                </div>
+      <section className="section-padding bg-[#111111]/80">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="section-title text-gray-900 dark:text-white">Get Your Free Quote</h2>
+          <div className="max-w-3xl mx-auto">
+            {submitStatus.type && (
+              <div className={`p-4 rounded-lg mb-6 ${
+                submitStatus.type === 'success' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
+              }`}>
+                {submitStatus.message}
               </div>
-              <div className="bg-gray-800 p-8 rounded-xl border border-gray-700">
-                <h3 className="text-xl font-semibold mb-6 text-green-400">Business Hours</h3>
-                <div className="space-y-3">
-                  {Object.entries(siteConfig.business.hours).map(([day, hours]) => (
-                    <div key={day} className="flex justify-between text-gray-300">
-                      <span className="capitalize">{day}:</span>
-                      <span>{hours}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <form className="bg-gray-800 p-8 rounded-xl border border-gray-700">
-              <h3 className="text-xl font-semibold mb-6 text-green-400">Get a Free Quote</h3>
-              <div className="space-y-6">
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Your Name"
-                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-white placeholder:text-gray-500"
-                  />
-                </div>
-                <div>
-                  <input
-                    type="email"
-                    placeholder="Your Email"
-                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-white placeholder:text-gray-500"
-                  />
-                </div>
-                <div>
-                  <input
-                    type="tel"
-                    placeholder="Your Phone"
-                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-white placeholder:text-gray-500"
-                  />
-                </div>
-                <div>
-                  <textarea
-                    placeholder="Project Details"
-                    rows={4}
-                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-white placeholder:text-gray-500"
-                  ></textarea>
-                </div>
-                <button
-                  type="submit"
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-all hover:shadow-lg hover:shadow-green-500/20"
-                >
-                  Send Message
-                </button>
-              </div>
+            )}
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <input
+                type="text"
+                name="name"
+                placeholder="Your Name"
+                value={formData.name}
+                onChange={handleChange}
+                className="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                required
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Your Email"
+                value={formData.email}
+                onChange={handleChange}
+                className="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                required
+              />
+              <input
+                type="tel"
+                name="phone"
+                placeholder="Your Phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                required
+              />
+              <select
+                name="service"
+                value={formData.service}
+                onChange={handleChange}
+                className="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                required
+              >
+                <option value="">Service Type</option>
+                {siteConfig.defaultServices.map((service, index) => (
+                  <option key={index} value={service.title}>{service.title}</option>
+                ))}
+              </select>
+              <textarea
+                name="message"
+                placeholder="Project Details"
+                value={formData.message}
+                onChange={handleChange}
+                rows={4}
+                className="md:col-span-2 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              ></textarea>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`md:col-span-2 button-primary py-4 ${
+                  isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {isSubmitting ? 'Submitting...' : 'Get Quote'}
+              </button>
             </form>
           </div>
         </div>
       </section>
-
       {/* Footer */}
-      <footer className="bg-gray-950 text-gray-400 py-12 border-t border-gray-800">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <footer className="bg-[#111111] text-gray-400 py-12 border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div>
-              <h3 className="text-2xl font-bold text-green-500 mb-6">{siteConfig.business.name}</h3>
+              <h3 className="text-2xl font-bold text-primary mb-6">{siteConfig.business.name}</h3>
               <p className="mb-2">{siteConfig.business.address.street}</p>
-              <p>{siteConfig.business.address.city}, {siteConfig.business.address.province}</p>
+              <p className="mb-2">{siteConfig.business.address.city}, {siteConfig.business.address.province}</p>
+              <p className="mb-2">{siteConfig.business.address.postalCode}</p>
+
             </div>
-            <div className="text-right">
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Contact Info</h4>
               <div className="space-y-2">
                 <p>Phone: {siteConfig.business.phone}</p>
                 <p>Email: {siteConfig.business.email}</p>
               </div>
-              <div className="mt-6 flex justify-end space-x-6">
-                {siteConfig.social.facebook && (
-                  <a href={siteConfig.social.facebook} className="text-gray-400 hover:text-green-400 transition-colors">
-                    Facebook
-                  </a>
-                )}
-                {siteConfig.social.instagram && (
-                  <a href={siteConfig.social.instagram} className="text-gray-400 hover:text-green-400 transition-colors">
-                    Instagram
-                  </a>
-                )}
-                {siteConfig.social.twitter && (
-                  <a href={siteConfig.social.twitter} className="text-gray-400 hover:text-green-400 transition-colors">
-                    Twitter
-                  </a>
-                )}
-                {siteConfig.social.linkedin && (
-                  <a href={siteConfig.social.linkedin} className="text-gray-400 hover:text-green-400 transition-colors">
-                    LinkedIn
-                  </a>
-                )}
+              <div className="mt-6 space-y-2">
+                <h4 className="text-lg font-semibold mb-4">Business Hours</h4>
+                {Object.entries(siteConfig.business.hours).map(([day, hours]) => (
+                  <div key={day} className="flex justify-between">
+                    <span className="capitalize">{day}:</span>
+                    <span>{hours}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Follow Us</h4>
+              <div className="space-y-4">
+                {Object.entries(siteConfig.social).map(([platform, url]) => (
+                  url && (
+                    <a
+                      key={platform}
+                      href={url}
+                      className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light"
+                    >
+                      <span className="capitalize">{platform}</span>
+                    </a>
+                  )
+                ))}
               </div>
             </div>
           </div>
-          <div className="mt-12 text-center text-gray-500">
+          <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 text-center text-gray-500">
             <p>&copy; {new Date().getFullYear()} {siteConfig.business.name}. All rights reserved.</p>
           </div>
         </div>

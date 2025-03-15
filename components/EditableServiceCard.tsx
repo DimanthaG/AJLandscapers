@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAdmin } from '@/context/admin-context'
 import { Pencil, Trash2, Check, X } from 'lucide-react'
 import { EditableImage } from './EditableImage'
+import Link from 'next/link'
 
 interface Service {
   id: string
@@ -36,15 +37,15 @@ export function EditableServiceCard({ service, onDelete, onUpdate }: EditableSer
 
   if (isEditing && isAdmin) {
     return (
-      <div className="relative p-6 bg-gray-800 rounded-xl border-2 border-green-500">
-        <div className="space-y-4">
+      <div className="bg-[#1a1a1a] rounded-lg shadow-lg border border-[#a3a300]/30 p-6">
+        <div className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Title</label>
             <input
               type="text"
               value={editedService.title}
               onChange={(e) => setEditedService(prev => ({ ...prev, title: e.target.value }))}
-              className="w-full px-3 py-2 bg-gray-700 rounded-lg text-white"
+              className="w-full px-3 py-2 bg-[#111111] border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary"
             />
           </div>
           
@@ -53,7 +54,7 @@ export function EditableServiceCard({ service, onDelete, onUpdate }: EditableSer
             <textarea
               value={editedService.description}
               onChange={(e) => setEditedService(prev => ({ ...prev, description: e.target.value }))}
-              className="w-full px-3 py-2 bg-gray-700 rounded-lg text-white resize-none h-24"
+              className="w-full px-3 py-2 bg-[#111111] border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary resize-none h-32"
             />
           </div>
           
@@ -67,40 +68,69 @@ export function EditableServiceCard({ service, onDelete, onUpdate }: EditableSer
               onUpdate={handleImageUpdate}
             />
           </div>
-        </div>
 
-        <div className="flex justify-end gap-2 mt-4">
-          <button
-            onClick={() => setIsEditing(false)}
-            className="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
-          <button
-            onClick={handleUpdate}
-            className="px-4 py-2 bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
-          >
-            <Check className="h-5 w-5" />
-          </button>
+          <div className="flex justify-end gap-2 mt-4">
+            <button
+              onClick={() => setIsEditing(false)}
+              className="px-4 py-2 text-sm font-medium text-[#111111] bg-[#a3a300] hover:bg-[#a3a300]/90 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleUpdate}
+              className="px-4 py-2 text-sm font-medium text-[#111111] bg-[#a3a300] hover:bg-[#a3a300]/90 rounded-lg transition-colors"
+            >
+              Save
+            </button>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div
-      className="group relative overflow-hidden rounded-xl bg-gray-800 p-8 hover:bg-gray-750 transition-all duration-300"
+    <div 
+      className="relative bg-[#1a1a1a] rounded-lg shadow-lg border border-white/10 overflow-hidden group hover:border-[#a3a300]/30"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative z-10">
-        <h3 className="text-2xl font-bold text-green-400 mb-4">
+      <div className="aspect-w-16 aspect-h-9 relative">
+        <EditableImage
+          id={`service-${service.id}`}
+          src={service.image}
+          alt={service.title}
+          fill
+          className="object-cover rounded-t-lg"
+        />
+        {isAdmin && isHovered && (
+          <div className="absolute top-2 right-2 flex gap-2 z-20">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="p-2 bg-[#a3a300] rounded-full hover:bg-[#a3a300]/90 transition-colors"
+            >
+              <Pencil className="h-4 w-4 text-[#111111]" />
+            </button>
+            <button
+              onClick={() => onDelete(service.id)}
+              className="p-2 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
+            >
+              <Trash2 className="h-4 w-4 text-white" />
+            </button>
+          </div>
+        )}
+      </div>
+      
+      <div className="p-6">
+        <h3 className="text-xl font-bold text-[#a3a300] mb-4">
           {service.title}
         </h3>
-        <p className="text-gray-300 mb-6">
+        <p className="text-[#a3a300]/90 mb-6 line-clamp-3">
           {service.description}
         </p>
-        <button className="inline-flex items-center text-green-400 hover:text-green-300 transition-colors">
+        <Link
+          href={`/services#${service.id}`}
+          className="inline-flex items-center text-[#a3a300] hover:text-[#a3a300]/90 transition-colors font-medium"
+        >
           Learn more
           <svg
             className="ml-2 w-4 h-4"
@@ -115,35 +145,8 @@ export function EditableServiceCard({ service, onDelete, onUpdate }: EditableSer
               d="M9 5l7 7-7 7"
             />
           </svg>
-        </button>
+        </Link>
       </div>
-
-      <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity">
-        <EditableImage
-          id={`service-${service.id}`}
-          src={service.image}
-          alt={service.title}
-          fill
-          className="object-cover"
-        />
-      </div>
-
-      {isAdmin && isHovered && (
-        <div className="absolute top-2 right-2 flex gap-2 z-20">
-          <button
-            onClick={() => setIsEditing(true)}
-            className="p-2 bg-green-500 rounded-full hover:bg-green-600 transition-colors"
-          >
-            <Pencil className="h-4 w-4 text-white" />
-          </button>
-          <button
-            onClick={() => onDelete(service.id)}
-            className="p-2 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
-          >
-            <Trash2 className="h-4 w-4 text-white" />
-          </button>
-        </div>
-      )}
     </div>
   )
 }

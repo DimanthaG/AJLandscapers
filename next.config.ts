@@ -2,7 +2,9 @@ import type { NextConfig } from "next";
 
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
+  reactStrictMode: true,
   images: {
+    domains: ['res.cloudinary.com'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -18,8 +20,16 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 's42814.pcdn.co',
+        pathname: '/**',
       }
     ],
+  },
+  experimental: {
+    appDir: true,
   },
 };
 
