@@ -13,7 +13,10 @@ export const metadata: Metadata = {
   title: 'AJ Landscapers',
   description: 'Professional landscaping services for your outdoor spaces',
   icons: {
-    icon: '/favicon.ico'
+    icon: [
+      { rel: 'icon', url: '/favicon.ico' },
+      { rel: 'shortcut icon', url: '/favicon.ico' }
+    ]
   }
 }
 
