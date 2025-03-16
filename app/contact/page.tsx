@@ -3,12 +3,22 @@
 import { siteConfig } from "@/config/site-config"
 import { useState, FormEvent } from "react"
 
+interface FormData {
+  name: string
+  email: string
+  phone: string
+  service: string
+  customService?: string
+  message: string
+}
+
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     phone: '',
     service: '',
+    customService: '',
     message: ''
   });
 
@@ -29,7 +39,11 @@ export default function ContactPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          // Use customService if service is "Custom"
+          service: formData.service === 'Custom' ? formData.customService : formData.service
+        }),
       });
 
       const data = await response.json();
@@ -47,6 +61,7 @@ export default function ContactPage() {
         email: '',
         phone: '',
         service: '',
+        customService: '',
         message: ''
       });
     } catch (error) {
@@ -63,7 +78,9 @@ export default function ContactPage() {
     const { id, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [id]: value
+      [id]: value,
+      // Reset customService when a different service is selected
+      ...(id === 'service' && value !== 'Custom' && { customService: '' })
     }));
   };
 
@@ -147,11 +164,33 @@ export default function ContactPage() {
                       className="w-full px-4 py-3 bg-[#111111] border border-white/10 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-white"
                     >
                       <option value="">Select a service</option>
-                      {siteConfig.defaultServices.map((service, index) => (
-                        <option key={index} value={service.title}>{service.title}</option>
-                      ))}
+                      <optgroup label="Common Services">
+                        {siteConfig.defaultServices.map((service, index) => (
+                          <option key={index} value={service.title}>{service.title}</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Additional Options">
+                        <option value="Landscape Analysis">Landscape Analysis & Consultation</option>
+                        <option value="Seasonal Maintenance">Seasonal Maintenance Package</option>
+                        <option value="Irrigation">Irrigation System Installation/Repair</option>
+                        <option value="Custom">Custom Service (Specify Below)</option>
+                      </optgroup>
                     </select>
                   </div>
+                  {formData.service === 'Custom' && (
+                    <div>
+                      <label htmlFor="customService" className="text-gray-300 block mb-2">Specify Service</label>
+                      <input
+                        type="text"
+                        id="customService"
+                        value={formData.customService}
+                        onChange={handleChange}
+                        placeholder="Please specify your service needs"
+                        className="w-full px-4 py-3 bg-[#111111] border border-white/10 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-white"
+                        required
+                      />
+                    </div>
+                  )}
                   <div>
                     <label htmlFor="message" className="text-gray-300 block mb-2">Message</label>
                     <textarea

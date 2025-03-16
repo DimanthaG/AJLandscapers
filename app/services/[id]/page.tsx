@@ -20,9 +20,9 @@ Our experienced team uses high-quality materials and innovative design technique
       "LED landscape lighting"
     ],
     images: [
-      "/HeroImage.jpg",
-      "https://images.unsplash.com/photo-1600240644455-3edc55c375fe?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1598911543663-37d77962beb1?w=800&auto=format&q=80"
+      "/images/IMG_18182.PNG",
+      "/images/IMG_18052.PNG",
+      "/images/IMG_18132.PNG"
     ],
     benefits: [
       "Increases property value",
@@ -46,9 +46,9 @@ We carefully consider factors like privacy, lighting, and flow to design courtya
       "Ambient lighting design"
     ],
     images: [
-      "https://images.unsplash.com/photo-1598911543663-37d77962beb1?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1600240644455-3edc55c375fe?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1604014237800-1c9102c219da?w=800&auto=format&q=80"
+      "/images/IMG_18052.PNG",
+      "/images/IMG_18182.PNG",
+      "/images/IMG_1807.PNG"
     ],
     benefits: [
       "Creates private outdoor living space",
@@ -72,9 +72,9 @@ Our designs incorporate elegant landscaping, strategic lighting, and premium mat
       "Seasonal planting design"
     ],
     images: [
-      "https://images.unsplash.com/photo-1558614409-43d07dcd0c4f?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1553855994-ef3aded468f4?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1600240644455-3edc55c375fe?w=800&auto=format&q=80"
+      "/images/IMG_18132.PNG",
+      "/images/IMG_18052.PNG",
+      "/images/IMG_18182.PNG"
     ],
     benefits: [
       "Enhances curb appeal",
@@ -98,9 +98,9 @@ Our designs incorporate weather-resistant materials, proper lighting, and though
       "All-weather furniture selection"
     ],
     images: [
-      "https://images.unsplash.com/photo-1604014237800-1c9102c219da?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1600240644455-3edc55c375fe?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1598512199776-e0aa7b73d02e?w=800&auto=format&q=80"
+      "/images/IMG_1807.PNG",
+      "/images/IMG_18052.PNG",
+      "/images/IMG_18132.PNG"
     ],
     benefits: [
       "Extends your living space",
@@ -124,9 +124,9 @@ Our designs focus on creating intimate spaces that feel secluded from the outsid
       "Mood lighting design"
     ],
     images: [
-      "https://images.unsplash.com/photo-1598512199776-e0aa7b73d02e?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1598912428627-112ce665e176?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1604014237800-1c9102c219da?w=800&auto=format&q=80"
+      "/images/CosyQuiet.jpg",
+      "/images/IMG_18032.PNG",
+      "/images/IMG_1807.PNG"
     ],
     benefits: [
       "Creates personal sanctuary",
@@ -150,9 +150,9 @@ Our designs incorporate luxurious materials, dramatic lighting, and eye-catching
       "Elegant outdoor furniture"
     ],
     images: [
-      "https://images.unsplash.com/photo-1598912428627-112ce665e176?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1600240644455-3edc55c375fe?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1598512199776-e0aa7b73d02e?w=800&auto=format&q=80"
+      "/images/IMG_18032.PNG",
+      "/images/CosyQuiet.jpg",
+      "/images/IMG_1807.PNG"
     ],
     benefits: [
       "Creates wow factor",
@@ -176,9 +176,9 @@ Our expert team works with premium materials and innovative designs to create ra
       "Low maintenance solutions"
     ],
     images: [
-      "https://images.unsplash.com/photo-1578301978069-45264734cddc?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1621496503717-095a594c4d45?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1553855994-ef3aded468f4?w=800&auto=format&q=80"
+      "/images/timelessrailings.jpg",
+      "/images/MajesticColumns.jpg",
+      "/images/HighQualFences.jpg"
     ],
     benefits: [
       "Enhances safety",
@@ -204,9 +204,9 @@ Our expert team combines functionality with artistic design to create fences tha
       "Integrated lighting solutions"
     ],
     images: [
-      "/HeroImage.jpg",
-      "https://images.unsplash.com/photo-1621496503717-095a594c4d45?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1578301978069-45264734cddc?w=800&auto=format&q=80"
+      "/images/MajesticColumns.jpg",
+      "/images/HeroImage.jpg",
+      "/images/timelessrailings.jpg"
     ],
     benefits: [
       "Enhances privacy",
@@ -231,9 +231,9 @@ Our designs range from classic to contemporary, incorporating premium materials 
       "Premium materials"
     ],
     images: [
-      "https://images.unsplash.com/photo-1553855994-ef3aded468f4?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1578301978069-45264734cddc?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1621496503717-095a594c4d45?w=800&auto=format&q=80"
+      "/images/HighQualFences.jpg",
+      "/images/MajesticColumns.jpg",
+      "/images/HeroImage.jpg"
     ],
     benefits: [
       "Enhances security",
@@ -257,9 +257,9 @@ Our high-quality fences are built using the finest materials and installed by ex
       "Low maintenance design"
     ],
     images: [
-      "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1621496503717-095a594c4d45?w=800&auto=format&q=80",
-      "https://images.unsplash.com/photo-1578301978069-45264734cddc?w=800&auto=format&q=80"
+      "/images/IMG_18032.PNG",
+      "/images/CosyQuiet.jpg",
+      "/images/IMG_1807.PNG"
     ],
     benefits: [
       "Lifetime protection",

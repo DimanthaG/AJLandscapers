@@ -1,11 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Plus } from "lucide-react"
-import { EditableServiceCard } from "@/components/EditableServiceCard"
-import { siteConfig } from "@/config/site-config"
-import { useAdmin } from "@/context/admin-context"
-import { v4 as uuidv4 } from 'uuid'
+import { useState } from "react"
+import { ServicePreviewCard } from "@/components/ServicePreviewCard"
 
 interface Service {
   id: string
@@ -14,146 +10,107 @@ interface Service {
   image: string
 }
 
-function generateDefaultService(): Service {
-  return {
-    id: uuidv4(),
-    title: "New Service",
-    description: "Click to edit this service description",
-    image: "https://source.unsplash.com/800x600/?landscape"
-  }
-}
-
 export default function ServicesPage() {
-  const { isAdmin } = useAdmin()
-  const [services, setServices] = useState<Service[]>(siteConfig.defaultServices)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    fetchServices()
-  }, [])
-
-  const fetchServices = async () => {
-    try {
-      const response = await fetch('/api/content?key=services')
-      const data = await response.json()
-      setServices(data?.content ? JSON.parse(data.content) : siteConfig.defaultServices)
-    } catch (error) {
-      console.error('Error fetching services:', error)
-      setServices(siteConfig.defaultServices)
-    } finally {
-      setIsLoading(false)
+  const [services] = useState<Service[]>([
+    { 
+      id: "hardscape",
+      title: "Breath taking Hard Scape",
+      description: "Transform your outdoor space with our expert hardscaping services.",
+      image: "/images/IMG_18182.PNG"
+    },
+    { 
+      id: "courtyard",
+      title: "Elegant Court Yards",
+      description: "Create your own private paradise with our custom courtyard design.",
+      image: "/images/IMG_18052.PNG"
+    },
+    { 
+      id: "entrance",
+      title: "Scenic Entrances",
+      description: "Make a lasting first impression with our custom entrance designs.",
+      image: "/images/IMG_18132.PNG"
+    },
+    { 
+      id: "dining",
+      title: "Personal and Outdoor Dining",
+      description: "Create the perfect outdoor dining and entertainment space.",
+      image: "/images/IMG_1807.PNG"
+    },
+    { 
+      id: "escape",
+      title: "Cosy and Quiet Escape",
+      description: "Transform your outdoor space into a peaceful retreat.",
+      image: "/images/CosyQuiet.jpg"
+    },
+    { 
+      id: "hollywood",
+      title: "Hollywood Moment",
+      description: "Add a touch of glamour to your outdoor space.",
+      image: "/images/IMG_18032.PNG"
+    },
+    { 
+      id: "railings",
+      title: "Timeless Railings",
+      description: "Enhance your property&apos;s safety and style with our custom railing solutions.",
+      image: "/images/timelessrailings.jpg"
+    },
+    { 
+      id: "fences",
+      title: "One of a Kind Garden Fences",
+      description: "Define and enhance your outdoor space with our custom fence designs.",
+      image: "/images/HeroImage.jpg"
+    },
+    { 
+      id: "gates",
+      title: "Majestic Columns and Gates",
+      description: "Make a grand statement with our custom column and gate designs.",
+      image: "/images/MajesticColumns.jpg"
+    },
+    { 
+      id: "warranty-fences",
+      title: "High Quality Life Time Warranty Fences",
+      description: "Invest in peace of mind with our lifetime warranty fence solutions.",
+      image: "/images/HighQualFences.jpg"
     }
-  }
-
-  const saveServices = async (updatedServices: Service[]) => {
-    if (!isAdmin) return
-
-    try {
-      await fetch('/api/content', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          key: 'services',
-          content: JSON.stringify(updatedServices)
-        })
-      })
-    } catch (error) {
-      console.error('Error saving services:', error)
-    }
-  }
-
-  const handleAddService = () => {
-    const newServices = [...services, generateDefaultService()]
-    setServices(newServices)
-    saveServices(newServices)
-  }
-
-  const handleDeleteService = (id: string) => {
-    const newServices = services.filter(service => service.id !== id)
-    setServices(newServices)
-    saveServices(newServices)
-  }
-
-  const handleUpdateService = (id: string, updatedService: Partial<Service>) => {
-    const newServices = services.map(service => 
-      service.id === id ? { ...service, ...updatedService } : service
-    )
-    setServices(newServices)
-    saveServices(newServices)
-  }
-
-  if (isLoading) {
-    return (
-      <main className="min-h-screen bg-[#111111] pt-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="animate-pulse space-y-8">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-64 bg-[#1a1a1a] rounded-lg" />
-            ))}
-          </div>
-        </div>
-      </main>
-    )
-  }
+  ])
 
   return (
     <main className="min-h-screen bg-[#111111]">
       {/* Hero Section */}
-      <section className="hero-section" style={{ height: '60vh', minHeight: '400px' }}>
-        <div className="absolute inset-0">
-          <img
-            src="https://source.unsplash.com/1600x900/?landscaping,garden"
-            alt="Services Hero"
-            className="object-cover w-full h-full"
-          />
-          <div className="absolute inset-0 bg-black/50" />
-        </div>
+      <section className="pt-32 pb-16 bg-[#111111]">
         <div className="relative z-10 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">Our Services</h1>
-          <p className="text-xl text-gray-100 max-w-2xl mx-auto">
+          <h1 className="text-5xl md:text-6xl font-bold text-[#a3a300] mb-6">Our Services</h1>
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Professional landscaping solutions tailored to your needs
           </p>
         </div>
       </section>
 
       {/* Services Grid */}
-      <section className="section-padding bg-[#111111]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service) => (
-              <EditableServiceCard
+      <section className="py-12 bg-[#111111]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+            {services.map((service, index) => (
+              <ServicePreviewCard
                 key={service.id}
-                service={service}
-                onDelete={handleDeleteService}
-                onUpdate={handleUpdateService}
+                title={service.title}
+                image={service.image}
+                id={service.id}
+                index={index}
               />
             ))}
-            
-            {isAdmin && (
-              <button
-                onClick={handleAddService}
-                className="h-full min-h-[400px] flex items-center justify-center border-2 border-dashed border-primary dark:border-primary-light rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all group"
-              >
-                <div className="flex flex-col items-center text-primary dark:text-primary-light group-hover:text-primary-light">
-                  <Plus className="h-12 w-12 mb-2" />
-                  <span className="text-lg font-medium">Add New Service</span>
-                </div>
-              </button>
-            )}
           </div>
         </div>
       </section>
 
       {/* Call to Action */}
-      <section className="section-padding bg-[#1a1a1a]">
+      <section className="py-16 bg-[#1a1a1a]">
         <div className="max-w-3xl mx-auto text-center px-4">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-3xl font-bold text-white mb-6">
             Ready to Transform Your Outdoor Space?
           </h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-8">
-            Contact us today for a free consultation and quote. Let's bring your vision to life.
+          <p className="text-gray-300 mb-8">
+            Contact us today for a free consultation and quote. Let&apos;s bring your vision to life.
           </p>
           <a
             href="/contact"

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react'
-import { Archive, RefreshCw, LogOut, Edit } from 'lucide-react'
+import { Archive, RefreshCw, LogOut, Edit, Image as ImageIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 type Submission = {
@@ -72,7 +72,6 @@ export default function DashboardPage() {
       }
 
       const data = await response.json()
-      console.log('Dashboard - Fetched data:', data)
 
       // Add status field if missing
       const quotesWithStatus = (data.quotes || []).map((quote: Submission) => ({
@@ -84,9 +83,6 @@ export default function DashboardPage() {
         ...contact,
         status: contact.status || 'active'
       }))
-
-      console.log('Dashboard - Processed quotes:', quotesWithStatus)
-      console.log('Dashboard - Processed contacts:', contactsWithStatus)
 
       setQuoteRequests(quotesWithStatus)
       setContactSubmissions(contactsWithStatus)
@@ -155,11 +151,18 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="pt-20 p-8 bg-[#111111] min-h-screen">
+    <div className="pt-32 p-8 bg-[#111111] min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-white">Submissions Dashboard</h1>
           <div className="flex gap-4">
+            <button
+              onClick={() => router.push('/addgallery')}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+            >
+              <ImageIcon className="w-4 h-4" />
+              Manage Gallery
+            </button>
             <button
               onClick={() => router.push('/editmode')}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"

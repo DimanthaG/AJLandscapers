@@ -11,6 +11,15 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useRouter } from 'next/navigation'
 import { makeEditable } from '@/utils/editMode'
 
+interface FormData {
+  name: string
+  email: string
+  phone: string
+  service: string
+  customService?: string
+  message: string
+}
+
 export default function Home(): JSX.Element {
   const [heroImage, setHeroImage] = useState("/images/HeroImage.jpg")
   const [scrollY, setScrollY] = useState(0)
@@ -22,19 +31,18 @@ export default function Home(): JSX.Element {
   const [imageScale, setImageScale] = useState(1)
 
   // Form state
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     phone: '',
     service: '',
+    customService: '',
     message: ''
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState<{
-    type: 'success' | 'error' | null
-    message: string
-  }>({ type: null, message: '' })
+  const [error, setError] = useState<string | null>(null)
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const router = useRouter()
 
@@ -200,7 +208,7 @@ export default function Home(): JSX.Element {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    setSubmitStatus({ type: null, message: '' })
+    setError(null)
 
     try {
       const response = await fetch('/api/quote', {
@@ -208,31 +216,28 @@ export default function Home(): JSX.Element {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          // Use customService if service is "Custom"
+          service: formData.service === 'Custom' ? formData.customService : formData.service
+        }),
       })
-
-      const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit form')
+        throw new Error('Failed to submit form')
       }
 
-      setSubmitStatus({
-        type: 'success',
-        message: 'Thank you for your quote request! We will get back to you soon.'
-      })
       setFormData({
         name: '',
         email: '',
         phone: '',
         service: '',
+        customService: '',
         message: ''
       })
-    } catch (error) {
-      setSubmitStatus({
-        type: 'error',
-        message: error instanceof Error ? error.message : 'Failed to submit form'
-      })
+      setShowSuccess(true)
+    } catch (err) {
+      setError('Failed to submit form. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -242,7 +247,9 @@ export default function Home(): JSX.Element {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
+      // Reset customService when a different service is selected
+      ...(name === 'service' && value !== 'Custom' && { customService: '' })
     }))
   }
 
@@ -369,37 +376,37 @@ export default function Home(): JSX.Element {
                 { 
                   title: "Personal and Outdoor Dining", 
                   id: "dining",
-                  image: "https://images.unsplash.com/photo-1604014237800-1c9102c219da?w=800&h=1200&auto=format&q=80"
+                  image: "/images/IMG_1807.PNG"
                 },
                 { 
                   title: "Cosy and Quiet Escape", 
                   id: "escape",
-                  image: "https://images.unsplash.com/photo-1598512199776-e0aa7b73d02e?w=800&h=1200&auto=format&q=80"
+                  image: "/images/CosyQuiet.jpg"
                 },
                 { 
                   title: "Hollywood Moment", 
                   id: "hollywood",
-                  image: "https://images.unsplash.com/photo-1598912428627-112ce665e176?w=800&h=1200&auto=format&q=80"
+                  image: "/images/IMG_18032.PNG"
                 },
                 { 
                   title: "Timeless Railings", 
                   id: "railings",
-                  image: "https://images.unsplash.com/photo-1578301978069-45264734cddc?w=800&h=1200&auto=format&q=80"
+                  image: "/images/timelessrailings.jpg"
                 },
                 { 
                   title: "One of a Kind Garden Fences", 
                   id: "fences",
-                  image: "https://images.unsplash.com/photo-1621496503717-095a594c4d45?w=800&h=1200&auto=format&q=80"
+                  image: "/images/HeroImage.jpg"
                 },
                 { 
                   title: "Majestic Columns and Gates", 
                   id: "gates",
-                  image: "https://images.unsplash.com/photo-1553855994-ef3aded468f4?w=800&h=1200&auto=format&q=80"
+                  image: "/images/MajesticColumns.jpg"
                 },
                 { 
                   title: "High Quality Life Time Warranty Fences", 
                   id: "warranty-fences",
-                  image: "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?w=800&h=1200&auto=format&q=80"
+                  image: "/images/HighQualFences.jpg"
                 }
               ].map((service, index) => (
                 <div key={service.id} className="min-w-[300px] sm:min-w-[350px] flex-shrink-0 snap-start">
@@ -442,7 +449,7 @@ export default function Home(): JSX.Element {
             <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-xl">
               <EditableImage
                 id="about-preview"
-                src="https://source.unsplash.com/800x600/?landscape,garden"
+                src="/images/Landscapers.png"
                 alt="About us preview"
                 fill
                 className="object-cover"
@@ -489,11 +496,14 @@ export default function Home(): JSX.Element {
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="section-title text-gray-900 dark:text-white">Get Your Free Quote</h2>
           <div className="max-w-3xl mx-auto">
-            {submitStatus.type && (
-              <div className={`p-4 rounded-lg mb-6 ${
-                submitStatus.type === 'success' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
-              }`}>
-                {submitStatus.message}
+            {error && (
+              <div className={`p-4 rounded-lg mb-6 bg-red-500/10 text-red-500`}>
+                {error}
+              </div>
+            )}
+            {showSuccess && (
+              <div className={`p-4 rounded-lg mb-6 bg-green-500/10 text-green-500`}>
+                Thank you for your quote request! We will get back to you soon.
               </div>
             )}
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -524,18 +534,40 @@ export default function Home(): JSX.Element {
                 className="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 required
               />
-              <select
-                name="service"
-                value={formData.service}
-                onChange={handleChange}
-                className="px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                required
-              >
-                <option value="">Service Type</option>
-                {siteConfig.defaultServices.map((service, index) => (
-                  <option key={index} value={service.title}>{service.title}</option>
-                ))}
-              </select>
+              <div className="space-y-4">
+                <select
+                  name="service"
+                  value={formData.service}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  required
+                >
+                  <option value="">Service Type</option>
+                  <optgroup label="Common Services">
+                    {siteConfig.defaultServices.map((service, index) => (
+                      <option key={index} value={service.title}>{service.title}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Additional Options">
+                    <option value="Landscape Analysis">Landscape Analysis & Consultation</option>
+                    <option value="Seasonal Maintenance">Seasonal Maintenance Package</option>
+                    <option value="Irrigation">Irrigation System Installation/Repair</option>
+                    <option value="Custom">Custom Service (Specify Below)</option>
+                  </optgroup>
+                </select>
+
+                {formData.service === 'Custom' && (
+                  <input
+                    type="text"
+                    name="customService"
+                    value={formData.customService}
+                    onChange={handleChange}
+                    placeholder="Please specify your service needs"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    required
+                  />
+                )}
+              </div>
               <textarea
                 name="message"
                 placeholder="Project Details"
@@ -557,55 +589,6 @@ export default function Home(): JSX.Element {
           </div>
         </div>
       </section>
-      {/* Footer */}
-      <footer className="bg-[#111111] text-gray-400 py-12 border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div>
-              <h3 className="text-2xl font-bold text-primary mb-6">{siteConfig.business.name}</h3>
-              <p className="mb-2">{siteConfig.business.address.street}</p>
-              <p className="mb-2">{siteConfig.business.address.city}, {siteConfig.business.address.province}</p>
-              <p className="mb-2">{siteConfig.business.address.postalCode}</p>
-
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Contact Info</h4>
-              <div className="space-y-2">
-                <p>Phone: {siteConfig.business.phone}</p>
-                <p>Email: {siteConfig.business.email}</p>
-              </div>
-              <div className="mt-6 space-y-2">
-                <h4 className="text-lg font-semibold mb-4">Business Hours</h4>
-                {Object.entries(siteConfig.business.hours).map(([day, hours]) => (
-                  <div key={day} className="flex justify-between">
-                    <span className="capitalize">{day}:</span>
-                    <span>{hours}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Follow Us</h4>
-              <div className="space-y-4">
-                {Object.entries(siteConfig.social).map(([platform, url]) => (
-                  url && (
-                    <a
-                      key={platform}
-                      href={url}
-                      className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light"
-                    >
-                      <span className="capitalize">{platform}</span>
-                    </a>
-                  )
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 text-center text-gray-500">
-            <p>&copy; {new Date().getFullYear()} {siteConfig.business.name}. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </main>
   )
 }

@@ -45,14 +45,14 @@ export type SiteConfig = {
 
 export const siteConfig: SiteConfig = {
   business: {
-    name: "AJ Landscaper",
-    email: "info@ajlandscaper.com",
-    phone: "(555) 123-4567",
+    name: "AJ Landscapers",
+    email: "ajlandscaper24@gmail.com",
+    phone: "(647) 614-4111",
     address: {
-      street: "123 Main Street",
-      city: "Toronto",
+      street: "100 Wingarden Ct",
+      city: "Scarborough",
       province: "ON",
-      postalCode: "M1M 1M1"
+      postalCode: "M1B 2P4"
     },
     hours: {
       monday: "9:00 AM - 5:00 PM",
@@ -68,7 +68,7 @@ export const siteConfig: SiteConfig = {
     title: "Transform Your Outdoor Space",
     subtitle: "Professional landscaping and hardscaping services in the Greater Toronto Area",
     cta: "Get Free Quote",
-    image: "/images/hero.jpg"
+    image: "/images/HeroImage.jpg"
   },
   about: {
     title: "About AJ Landscaper",
@@ -83,13 +83,13 @@ export const siteConfig: SiteConfig = {
     ]
   },
   social: {
-    facebook: "https://facebook.com/ajlandscaper",
-    instagram: "https://instagram.com/ajlandscaper"
+    facebook: "https://facebook.com/",
+    instagram: "https://instagram.com/"
   },
   defaultServices: [
     {
       title: "Landscape Design",
-      description: "Custom landscape design services tailored to your needs",
+      description: "aCustom landscape design services tailored to your needs",
       image: "/images/services/landscape-design.jpg"
     },
     {

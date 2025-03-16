@@ -1,52 +1,77 @@
 "use client"
 
-import { GalleryGrid } from "@/components/GalleryGrid"
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
+
+interface CloudinaryImage {
+  public_id: string
+  secure_url: string
+  width: number
+  height: number
+}
 
 export default function GalleryPage() {
+  const [images, setImages] = useState<CloudinaryImage[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const response = await fetch('/api/gallery')
+        const data = await response.json()
+        setImages(data)
+      } catch (error) {
+        console.error('Error fetching images:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchImages()
+  }, [])
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#111111] pt-24">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="aspect-square bg-[#1a1a1a] animate-pulse rounded-lg" />
+            ))}
+          </div>
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main className="min-h-screen bg-[#111111]">
       {/* Hero Section */}
-      <section className="hero-section" style={{ height: '60vh', minHeight: '400px' }}>
-        <div className="absolute inset-0">
-          <img
-            src="https://source.unsplash.com/1600x900/?garden-landscaping"
-            alt="Gallery Hero"
-            className="object-cover w-full h-full"
-          />
-          <div className="absolute inset-0 bg-black/50" />
-        </div>
+      <section className="pt-32 pb-16 bg-[#111111]">
         <div className="relative z-10 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">Our Portfolio</h1>
-          <p className="text-xl text-gray-100 max-w-2xl mx-auto">
-            Explore our collection of beautiful landscape transformations
+          <h1 className="text-5xl md:text-6xl font-bold text-[#a3a300] mb-6">Our Gallery</h1>
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            Explore our portfolio of stunning landscaping projects
           </p>
         </div>
       </section>
 
-      {/* Gallery Grid Section */}
-      <section className="section-padding bg-[#111111]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Transform Your Outdoor Space
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300">
-              Browse through our portfolio of completed projects and get inspired for your next landscape transformation.
-            </p>
-          </div>
-          
-          <GalleryGrid />
-          
-          <div className="text-center mt-16">
-            <p className="text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-              Ready to start your landscape transformation? Contact us today for a free consultation and let's bring your vision to life.
-            </p>
-            <a
-              href="/contact"
-              className="button-primary text-lg inline-block"
-            >
-              Get Started
-            </a>
+      {/* Gallery Grid */}
+      <section className="py-12 bg-[#111111]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {images.map((image) => (
+              <div key={image.public_id} className="group relative aspect-square rounded-lg overflow-hidden">
+                <Image
+                  src={image.secure_url}
+                  alt="Gallery Image"
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-110"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </div>
+            ))}
           </div>
         </div>
       </section>
