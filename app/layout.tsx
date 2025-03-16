@@ -11,11 +11,10 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'AJ Landscapers',
-  description: 'Professional landscaping services in Western Mass',
+  description: 'Professional landscaping services for your outdoor spaces',
   icons: {
-    icon: '/images/Logo.png',
-    apple: '/images/Logo.png',
-  },
+    icon: '/favicon.ico'
+  }
 }
 
 export default function RootLayout({
