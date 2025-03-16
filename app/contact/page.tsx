@@ -82,7 +82,7 @@ export default function ContactPage() {
         <div className="relative z-10 text-center">
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">Contact Us</h1>
           <p className="text-xl text-gray-100 max-w-2xl mx-auto">
-            Let's discuss your landscaping vision
+            Let&apos;s discuss your landscaping vision
           </p>
         </div>
       </section>

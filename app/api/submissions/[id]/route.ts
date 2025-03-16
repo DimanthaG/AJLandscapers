@@ -1,45 +1,27 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+type RouteParams = { params: { id: string } };
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, context: RouteParams) {
   try {
-    const { id } = params;
     const { type, status } = await request.json();
-
-    if (!type || !status || !['active', 'archived'].includes(status)) {
-      return NextResponse.json(
-        { error: 'Invalid request body' },
-        { status: 400 }
-      );
-    }
-
+    const supabase = createClient();
+    
     const table = type === 'quote' ? 'quote_requests' : 'contact_submissions';
     
-    const { error: dbError } = await supabase
+    const { data, error } = await supabase
       .from(table)
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq('id', id);
+      .update({ status })
+      .eq('id', context.params.id)
+      .select()
+      .single();
 
-    if (dbError) {
-      console.error('Database error:', dbError);
-      throw new Error('Failed to update submission status');
-    }
+    if (error) throw error;
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json(data);
   } catch (error) {
-    console.error('Update submission error:', error);
+    console.error('Error updating submission:', error);
     return NextResponse.json(
       { error: 'Failed to update submission' },
       { status: 500 }

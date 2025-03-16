@@ -1,7 +1,6 @@
 import { EditableContent } from "@/components/EditableContent"
 import { EditableImage } from "@/components/EditableImage"
 import { siteConfig } from "@/config/site-config"
-import Image from "next/image"
 import Link from "next/link"
 
 export default function AboutPage() {
