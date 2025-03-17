@@ -78,7 +78,7 @@ export function Footer() {
             <p>Business name: {siteConfig.business.name}</p>
             <p>Business Email: <a href={`mailto:${siteConfig.business.email}`} className="text-blue-500 hover:text-blue-400 transition-colors">{siteConfig.business.email}</a></p>
             <p>Developed by: <a href="https://codavra.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 transition-colors">{siteConfig.business.developer}</a></p>
-            <p>DeveloperEmail: <a href={`mailto:${siteConfig.business.devemail}`} className="text-blue-500 hover:text-blue-400 transition-colors">{siteConfig.business.devemail}</a></p>
+            <p>Developer Email: <a href={`mailto:${siteConfig.business.devemail}`} className="text-blue-500 hover:text-blue-400 transition-colors">{siteConfig.business.devemail}</a></p>
           </div>
           <div className="text-gray-500">
             <p>&copy; {new Date().getFullYear()} {siteConfig.business.name}. All rights reserved.</p>
