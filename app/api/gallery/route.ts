@@ -17,23 +17,9 @@ cloudinary.config({
 
 export async function GET() {
   try {
-    // Verify authentication
-    const cookieStore = await cookies()
-    const token = await cookieStore.get('auth_token')
-
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const payload = await verifyToken(token.value)
-    
-    if (!payload || payload.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Fetch data from both tables
+    // Fetch images from Cloudinary (no authentication required for viewing)
     const result = await cloudinary.search
-      .expression('resource_type:image OR resource_type:video AND folder:gallery')
+      .expression('resource_type:image AND folder:gallery')
       .sort_by('created_at', 'desc')
       .max_results(100)
       .execute()

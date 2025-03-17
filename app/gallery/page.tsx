@@ -3,21 +3,25 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 
-interface CloudinaryImage {
+interface MediaItem {
   public_id: string
   secure_url: string
   width: number
   height: number
+  resource_type: string
 }
 
 export default function GalleryPage() {
-  const [images, setImages] = useState<CloudinaryImage[]>([])
+  const [images, setImages] = useState<MediaItem[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchImages = async () => {
       try {
         const response = await fetch('/api/gallery')
+        if (!response.ok) {
+          throw new Error('Failed to fetch images')
+        }
         const data = await response.json()
         setImages(data)
       } catch (error) {
