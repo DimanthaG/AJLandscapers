@@ -2,8 +2,12 @@
 
 import { siteConfig } from '@/config/site-config'
 import { Facebook, Instagram } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 export function Footer() {
+  const pathname = usePathname()
+  const isHomePage = pathname === '/'
+
   return (
     <footer className="bg-[#111111] text-gray-400 py-12 border-t border-white/10">
       <div className="max-w-7xl mx-auto px-4">
@@ -20,15 +24,17 @@ export function Footer() {
               <p>Phone: {siteConfig.business.phone}</p>
               <p>Email: {siteConfig.business.email}</p>
             </div>
-            <div className="mt-6 space-y-2">
-              <h4 className="text-lg font-semibold mb-4">Business Hours</h4>
-              {Object.entries(siteConfig.business.hours).map(([day, hours]) => (
-                <div key={day} className="flex justify-between">
-                  <span className="capitalize">{day}:</span>
-                  <span>{hours}</span>
-                </div>
-              ))}
-            </div>
+            {isHomePage && (
+              <div className="mt-6 space-y-2">
+                <h4 className="text-lg font-semibold mb-4">Business Hours</h4>
+                {Object.entries(siteConfig.business.hours).map(([day, hours]) => (
+                  <div key={day} className="flex justify-between">
+                    <span className="capitalize">{day}:</span>
+                    <span>{hours}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div>
             <h4 className="text-lg font-semibold mb-4">Follow Us</h4>
@@ -67,8 +73,16 @@ export function Footer() {
             </div>
           </div>
         </div>
-        <div className="mt-12 pt-8 border-t border-gray-800 text-center text-gray-500">
-          <p>&copy; {new Date().getFullYear()} {siteConfig.business.name}. All rights reserved.</p>
+        <div className="mt-12 pt-8 border-t border-gray-800 text-sm">
+          <div className="space-y-2 mb-4">
+            <p>Business name: {siteConfig.business.name}</p>
+            <p>Business Email: <a href={`mailto:${siteConfig.business.email}`} className="text-blue-500 hover:text-blue-400 transition-colors">{siteConfig.business.email}</a></p>
+            <p>Developed by: <a href="https://codavra.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 transition-colors">{siteConfig.business.developer}</a></p>
+            <p>DeveloperEmail: <a href={`mailto:${siteConfig.business.devemail}`} className="text-blue-500 hover:text-blue-400 transition-colors">{siteConfig.business.devemail}</a></p>
+          </div>
+          <div className="text-gray-500">
+            <p>&copy; {new Date().getFullYear()} {siteConfig.business.name}. All rights reserved.</p>
+          </div>
         </div>
       </div>
     </footer>

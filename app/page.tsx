@@ -119,7 +119,6 @@ export default function Home(): JSX.Element {
           setHeroImage(data.content)
         }
       } catch (error) {
-        console.error('Error fetching hero image:', error)
       }
     }
     fetchHeroImage()
@@ -362,12 +361,12 @@ export default function Home(): JSX.Element {
               >
                 {[
                   { 
-                    title: "Breath taking Hard Scape", 
+                    title: "Breath Taking Hard Scape", 
                     id: "hardscape",
                     image: "/images/IMG_18182.PNG"
                   },
                   { 
-                    title: "Elegant Court Yards", 
+                    title: "Elegant Courtyards", 
                     id: "courtyard",
                     image: "/images/IMG_18052.PNG"
                   },
@@ -394,7 +393,7 @@ export default function Home(): JSX.Element {
                   { 
                     title: "Timeless Railings", 
                     id: "railings",
-                    image: "/images/timelessrailings.jpg"
+                    image: "/images/TimelessRailings.jpg"
                   },
                   { 
                     title: "One of a Kind Garden Fences", 

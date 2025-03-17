@@ -14,7 +14,7 @@ export default function ServicesPage() {
   const [services] = useState<Service[]>([
     { 
       id: "hardscape",
-      title: "Breath taking Hard Scape",
+      title: "Breath Taking Hard Scape",
       description: "Transform your outdoor space with our expert hardscaping services.",
       image: "/images/IMG_18182.PNG"
     },
@@ -52,7 +52,7 @@ export default function ServicesPage() {
       id: "railings",
       title: "Timeless Railings",
       description: "Enhance your property&apos;s safety and style with our custom railing solutions.",
-      image: "/images/timelessrailings.jpg"
+      image: "/images/TimelessRailings.jpg"
     },
     { 
       id: "fences",

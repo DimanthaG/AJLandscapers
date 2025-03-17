@@ -3,6 +3,10 @@ export type SiteConfig = {
     name: string
     email: string
     phone: string
+    representative: string
+    developer: string
+    licenseNumber: string
+    hosting: string
     address: {
       street: string
       city: string
@@ -48,6 +52,11 @@ export const siteConfig: SiteConfig = {
     name: "AJ Landscapers",
     email: "ajlandscaper24@gmail.com",
     phone: "(647) 614-4111",
+    representative: "Arjun Jassal",
+    licenseNumber: "L2024-001",
+    hosting: "Vercel",
+    developer: "Codavra.com",
+    devemail: "info@codavra.com",
     address: {
       street: "100 Wingarden Ct",
       city: "Scarborough",
@@ -65,8 +74,8 @@ export const siteConfig: SiteConfig = {
     }
   },
   hero: {
-    title: "Transform Your Outdoor Space",
-    subtitle: "Professional landscaping and hardscaping services in the Greater Toronto Area",
+    title: "Transform Your Outdoor Space With Us!",
+    subtitle: "Professional landscaping and hardscaping services in North York , Klinesburg, Mississauga Road, Bridle Path, the Beaches, Scarborough Bluffs , High Park and other upscale neighborhoods",
     cta: "Get Free Quote",
     image: "/images/HeroImage.jpg"
   },
@@ -89,7 +98,7 @@ export const siteConfig: SiteConfig = {
   defaultServices: [
     {
       title: "Landscape Design",
-      description: "aCustom landscape design services tailored to your needs",
+      description: "Custom landscape design services tailored to your needs",
       image: "/images/services/landscape-design.jpg"
     },
     {

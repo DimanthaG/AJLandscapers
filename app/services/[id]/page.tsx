@@ -7,7 +7,7 @@ import { ArrowLeft } from "lucide-react";
 
 const serviceDetails = {
   hardscape: {
-    title: "Breath taking Hard Scape",
+    title: "Breath Taking Hard Scape",
     description: `Transform your outdoor space with our expert hardscaping services. We specialize in creating stunning patios, walkways, retaining walls, and outdoor living spaces that combine functionality with aesthetic appeal.
 
 Our experienced team uses high-quality materials and innovative design techniques to bring your vision to life. Whether you're looking to create an elegant outdoor entertaining area or enhance your property's curb appeal, our hardscaping solutions are tailored to your specific needs.`,
@@ -176,7 +176,7 @@ Our expert team works with premium materials and innovative designs to create ra
       "Low maintenance solutions"
     ],
     images: [
-      "/images/timelessrailings.jpg",
+      "/images/TimelessRailings.jpg",
       "/images/MajesticColumns.jpg",
       "/images/HighQualFences.jpg"
     ],
@@ -206,7 +206,7 @@ Our expert team combines functionality with artistic design to create fences tha
     images: [
       "/images/MajesticColumns.jpg",
       "/images/HeroImage.jpg",
-      "/images/timelessrailings.jpg"
+      "/images/TimelessRailings.jpg"
     ],
     benefits: [
       "Enhances privacy",

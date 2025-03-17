@@ -30,7 +30,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ content: data?.content })
   } catch (error) {
-    console.error('Error fetching content:', error)
     return NextResponse.json(
       { error: 'Failed to fetch content' },
       { status: 500 }

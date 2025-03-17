@@ -12,6 +12,37 @@ interface ServicePreviewCardProps {
 }
 
 export function ServicePreviewCard({ title, image, id, index }: ServicePreviewCardProps) {
+  // Function to split title and add line breaks, keeping certain phrases together
+  const formatTitle = (title: string) => {
+    // Replace spaces with newlines, but keep specific phrases together
+    return title
+      .replace('Hard Scape', 'Hardscape')
+      .replace('Outdoor Dining', 'OutdoorDining')
+      .replace('Quiet Escape', 'QuietEscape')
+      .replace('Majestic Columns', 'MajesticColumns')
+      .replace('High Quality', 'HighQuality')
+      .replace('Life Time', 'LifeTime')
+      .replace('Warranty Fences', 'WarrantyFences')
+      .replace('One of a Kind', 'OneOfAKind')
+      .replace('Garden Fences', 'GardenFences')
+      .replace('and Gates', 'andGates')
+      .split(' ')
+      .map(word => 
+        word
+          .replace('Hardscape', 'Hard Scape')
+          .replace('OutdoorDining', 'Outdoor Dining')
+          .replace('QuietEscape', 'Quiet Escape')
+          .replace('MajesticColumns', 'Majestic Columns')
+          .replace('HighQuality', 'High Quality')
+          .replace('LifeTime', 'Life Time')
+          .replace('WarrantyFences', 'Warranty Fences')
+          .replace('OneOfAKind', 'One of a Kind')
+          .replace('GardenFences', 'Garden Fences')
+          .replace('andGates', 'and Gates')
+      )
+      .join('\n');
+  };
+
   return (
     <div className="relative w-full h-full aspect-[3/5] rounded-2xl overflow-hidden group">
       {/* Background Image */}
@@ -24,13 +55,13 @@ export function ServicePreviewCard({ title, image, id, index }: ServicePreviewCa
       </div>
 
       {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0" />
 
       {/* Content */}
       <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black via-black/70 to-transparent">
-        <h3 className="text-2xl font-bold text-white mb-2">
+        <h3 className="text-3xl font-bold text-white mb-2 text-left whitespace-pre-line leading-tight">
           <EditableContent
-            content={title}
+            content={formatTitle(title)}
             id={`service-preview-title-${index}`}
           />
         </h3>

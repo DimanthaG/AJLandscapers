@@ -33,7 +33,6 @@ export const EditableContent = ({ content: initialContent, id, className = "", a
             setContentCache(id, data.content)
           }
         } catch (error) {
-          console.error('Error fetching content:', error)
         }
       }
       fetchContent()
