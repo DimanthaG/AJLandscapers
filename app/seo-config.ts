@@ -6,7 +6,7 @@ export const seoConfig = {
     openGraph: {
       type: 'website',
       locale: 'en_CA',
-      url: 'https://ajlandscapers.com',
+      url: 'https://ajlandscaper.com',
       siteName: 'AJ Landscapers',
       images: [
         {

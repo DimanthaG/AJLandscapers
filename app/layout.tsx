@@ -12,7 +12,7 @@ import { seoConfig } from './seo-config'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://ajlandscapers.com'),
+  metadataBase: new URL('https://ajlandscaper.com'),
   title: {
     default: seoConfig.default.title,
     template: '%s | AJ Landscapers'
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   authors: [
-    { name: 'AJ Landscapers', url: 'https://ajlandscapers.com' }
+    { name: 'AJ Landscapers', url: 'https://ajlandscaper.com' }
   ],
   category: 'Landscaping Services',
   verification: {
@@ -47,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="canonical" href="https://ajlandscapers.com" />
+        <link rel="canonical" href="https://ajlandscaper.com" />
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body className={inter.className} suppressHydrationWarning>

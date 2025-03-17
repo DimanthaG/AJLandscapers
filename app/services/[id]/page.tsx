@@ -204,8 +204,8 @@ Our expert team combines functionality with artistic design to create fences tha
       "Integrated lighting solutions"
     ],
     images: [
-      "/images/MajesticColumns.jpg",
       "/images/HeroImage.jpg",
+      "/images/MajesticColumns.jpg",
       "/images/TimelessRailings.jpg"
     ],
     benefits: [

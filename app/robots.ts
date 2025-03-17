@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/dashboard/', '/api/'],
     },
-    sitemap: 'https://ajlandscapers.com/sitemap.xml',
+    sitemap: 'https://ajlandscaper.com/sitemap.xml',
   }
 } 
