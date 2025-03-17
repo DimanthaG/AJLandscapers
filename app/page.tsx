@@ -451,7 +451,7 @@ export default function Home(): JSX.Element {
               <div className="relative aspect-[4/3] rounded-lg overflow-hidden shadow-xl">
                 <EditableImage
                   id="about-preview"
-                  src="/images/Landscapers.png"
+                  src="/images/whitelogo.png"
                   alt="About us preview"
                   fill
                   className="object-cover"

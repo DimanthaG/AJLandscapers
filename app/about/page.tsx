@@ -10,7 +10,7 @@ export default function AboutPage() {
       <section className="hero-section" style={{ height: '60vh', minHeight: '400px' }}>
         <EditableImage
           id="about-hero"
-          src="/images/Landscapers.png"
+          src="/images/whitelogo.png"
           alt="About Us Hero"
           fill
           className="object-cover"
