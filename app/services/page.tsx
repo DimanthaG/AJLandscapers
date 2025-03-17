@@ -2,6 +2,21 @@
 
 import { useState } from "react"
 import { ServicePreviewCard } from "@/components/ServicePreviewCard"
+import { seoConfig } from '../seo-config'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: seoConfig.pages.services.title,
+  description: seoConfig.pages.services.description,
+  openGraph: {
+    ...seoConfig.default.openGraph,
+    title: seoConfig.pages.services.title,
+    description: seoConfig.pages.services.description,
+  },
+  alternates: {
+    canonical: '/services',
+  }
+}
 
 interface Service {
   id: string
