@@ -305,16 +305,16 @@ export default function Home(): JSX.Element {
           </div>
         </section>
         {/* Features Section */}
-        <section className="bg-[#a3a300] py-8">
-          <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
+        <section className="bg-[#a3a300] py-4 md:py-8">
+          <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
             <div className="text-center">
-              <p className="text-lg font-semibold text-black">TRUSTED</p>
+              <p className="text-base md:text-lg font-semibold text-black">TRUSTED</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-semibold text-black">RELIABLE</p>
+              <p className="text-base md:text-lg font-semibold text-black">RELIABLE</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-semibold text-black">QUALIFIED AND EXPERIENCED</p>
+              <p className="text-base md:text-lg font-semibold text-black">QUALIFIED AND EXPERIENCED</p>
             </div>
           </div>
         </section>
