@@ -50,7 +50,7 @@ export type SiteConfig = {
 export const siteConfig: SiteConfig = {
   business: {
     name: "AJ Landscapers",
-    email: "ajlandscaper24@gmail.com",
+    email: "info@ajlandscaper.com",
     phone: "(647) 614-4111",
     representative: "Arjun Jassal",
     licenseNumber: "L2024-001",
