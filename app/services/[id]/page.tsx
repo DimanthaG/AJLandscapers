@@ -2,8 +2,10 @@
 
 import { EditableContent } from "@/components/EditableContent";
 import { EditableImage } from "@/components/EditableImage";
+import { ImageLightbox } from "@/components/ImageLightbox";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { useState } from "react";
 
 const serviceDetails = {
   hardscape: {
@@ -72,9 +74,11 @@ Our designs incorporate elegant landscaping, strategic lighting, and premium mat
       "Seasonal planting design"
     ],
     images: [
-      "/images/IMG_18132.PNG",
-      "/images/IMG_18052.PNG",
-      "/images/IMG_18182.PNG"
+      "/services/scenic/1.jpg",
+      "/services/scenic/2.jpg",
+      "/services/scenic/3.jpg",
+      "/services/scenic/4.jpg",
+      "/services/scenic/5.jpg"
     ],
     benefits: [
       "Enhances curb appeal",
@@ -176,9 +180,12 @@ Our expert team works with premium materials and innovative designs to create ra
       "Low maintenance solutions"
     ],
     images: [
-      "/images/TimelessRailings.jpg",
-      "/images/MajesticColumns.jpg",
-      "/images/HighQualFences.jpg"
+      "/services/railings/1.jpg",
+      "/services/railings/2.jpg",
+      "/services/railings/3.jpg",
+      "/services/railings/4.jpg",
+      "/services/railings/5.jpg",
+      "/services/railings/6.jpg"
     ],
     benefits: [
       "Enhances safety",
@@ -204,9 +211,11 @@ Our expert team combines functionality with artistic design to create fences tha
       "Integrated lighting solutions"
     ],
     images: [
-      "/images/HeroImage.jpg",
-      "/images/MajesticColumns.jpg",
-      "/images/TimelessRailings.jpg"
+      "/services/fences/1.jpg",
+      "/services/fences/2.jpg",
+      "/services/fences/3.jpg",
+      "/services/fences/4.jpg",
+      "/services/fences/5.jpg"
     ],
     benefits: [
       "Enhances privacy",
@@ -273,6 +282,15 @@ Our high-quality fences are built using the finest materials and installed by ex
 
 export default function ServicePage({ params }: { params: { id: string } }) {
   const service = serviceDetails[params.id as keyof typeof serviceDetails] || serviceDetails.hardscape;
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+
+  const handleImageClick = (index: number) => {
+    setSelectedImageIndex(index);
+  };
+
+  const handleNavigate = (newIndex: number) => {
+    setSelectedImageIndex(newIndex);
+  };
 
   return (
     <main className="min-h-screen bg-[#111111] text-white">
@@ -322,7 +340,11 @@ export default function ServicePage({ params }: { params: { id: string } }) {
               {/* Image Gallery */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                 {service.images.map((image, index) => (
-                  <div key={index} className="relative aspect-[4/3] rounded-lg overflow-hidden">
+                  <div 
+                    key={index} 
+                    className="relative aspect-[4/3] rounded-lg overflow-hidden cursor-pointer"
+                    onClick={() => handleImageClick(index)}
+                  >
                     <EditableImage
                       id={`service-gallery-${params.id}-${index}`}
                       src={image}
@@ -333,6 +355,16 @@ export default function ServicePage({ params }: { params: { id: string } }) {
                   </div>
                 ))}
               </div>
+
+              {/* Image Lightbox */}
+              <ImageLightbox
+                isOpen={selectedImageIndex !== null}
+                onClose={() => setSelectedImageIndex(null)}
+                images={service.images}
+                currentImageIndex={selectedImageIndex || 0}
+                onNavigate={handleNavigate}
+                alt={service.title}
+              />
             </div>
 
             {/* Sidebar */}
